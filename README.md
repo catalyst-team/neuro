@@ -40,7 +40,7 @@ Developed in a partnership with
 
 </div>
 # How to run
-1. Download data via bash sripts/download_dataset.sh
+1. Download data via bash sripts/download_dataset.sh \n
 2. Launch by command catalyst-dl run --config=./config.yml
 
 
