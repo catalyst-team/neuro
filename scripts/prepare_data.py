@@ -24,7 +24,7 @@ def find_sample(path):
 
 
 def main(
-    datapath: str = "./mnt/hdd2/data/Mindbonggle_101", valid_size: float = 0.2, random_state: int = 42
+    datapath: str = "./data/Mindbonggle_101", valid_size: float = 0.2, random_state: int = 42
 ):
     dataframe = find_sample(datapath)
 
