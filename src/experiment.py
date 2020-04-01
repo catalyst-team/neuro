@@ -54,7 +54,7 @@ class Experiment(ConfigExperiment):
                 ),
                 NiftiReader(
                     input_key="labels", output_key="labels"
-                )
+                ),
             ]
         )
 

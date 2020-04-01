@@ -13,8 +13,8 @@ stages:
   data_params:                                  
     num_workers: 1                              
     batch_size: 2                             
-    in_csv_train: "./data/dataset_train.csv"   
-    in_csv_valid: "./data/dataset_valid.csv"                               
+    in_csv_train: "./scripts/data/dataset_train.csv"   
+    in_csv_valid: "./scripts/data/dataset_valid.csv"                               
   criterion_params:
     criterion: CrossEntropyLoss                                            
   stage1:                                       
