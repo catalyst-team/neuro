@@ -1,0 +1,48 @@
+model_params:                      
+  model: MeshNet                     
+args:
+  expdir: "./src"                    
+  logdir: "./logs" 
+runner_params:
+  input_key: "images"  # Пример
+  output_key: "labels"  # Пример             
+stages:                                    
+  state_params:                             
+    main_metric: &reduce_metric dice        
+    minimize_metric: False
+  data_params:                                  
+    num_workers: 1                              
+    batch_size: 2                             
+    in_csv_train: "./data/dataset_train.csv"   
+    in_csv_valid: "./data/dataset_valid.csv"                               
+  criterion_params:
+    criterion: CrossEntropyLoss                                            
+  stage1:                                       
+    state_params:                               
+      num_epochs: 10             
+    optimizer_params:                           
+      optimizer: Adam                          
+      lr: 0.001                                
+      weight_decay: 0.0003                      
+    scheduler_params:                           
+      scheduler: MultiStepLR                    
+      milestones: [10]                          
+      gamma: 0.3                                
+    callbacks_params:                           
+      loss_CE:                               
+        callback: CriterionCallback             
+        input_key: labels                         
+        output_key: labels
+        prefix: &loss CrossEntropyLoss                  
+      
+      accuracy:                                 
+        callback: DiceCallback                  
+        input_key: labels
+        output_key: labels
+      optimizer:                           
+        callback: OptimizerCallback
+        loss_key: *loss
+      scheduler:                              
+        callback: SchedulerCallback
+      saver:                                 
+        callback: CheckpointCallback
