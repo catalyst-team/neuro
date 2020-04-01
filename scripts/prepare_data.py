@@ -8,6 +8,9 @@ def find_sample(path):
     labels_data = {"images":[],"labels":[]}
     for case in os.listdir(path):
         case_folder = os.path.join(path, case)
+        shutil.unpack_archive(os.path.join(path, case))
+        if case.endswith(".tar.gz"):
+            os.remove(os.path.join(path, case))
         for person in os.listdir(case_folder):
             person_folder = os.path.join(case_folder, person)
             try:
