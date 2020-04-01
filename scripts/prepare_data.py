@@ -2,6 +2,7 @@ import pathlib
 import pandas as pd
 from sklearn import model_selection
 import os
+import shutil
 
 def find_sample(path):
     labels_data = {"images":[],"labels":[]}
@@ -12,9 +13,11 @@ def find_sample(path):
             try:
                 for train in os.listdir(person_folder):
                     if train == 't1weighted_brain.MNI152.nii.gz':
-                        labels_data["image"].append(os.path.join(person_folder,train))
+                        shutil.unpack_archive(os.path.join(person_folder,train))
+                        labels_data["image"].append(os.path.join(person_folder,'t1weighted_brain.MNI152.nii'))
                     if train == 'labels.DKT31.manual.MNI152.nii.gz':
-                        labels_data["label"].append(os.path.join(person_folder,train))
+                        shutil.unpack_archive(os.path.join(person_folder,train))
+                        labels_data["label"].append(os.path.join(person_folder,'labels.DKT31.manual.MNI152.nii'))
             except:
                 continue
     return pd.DataFrame(labels_data)
