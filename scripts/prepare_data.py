@@ -16,7 +16,7 @@ def find_sample(path):
             if person in ["._.DS_Store",".DS_Store"]:
                 continue
             person_folder = os.path.join(case_folder, person)
-            for train in os.listdir(person_folder):
+            for train in os.listdir(person_folder): 
                 if train == 't1weighted_brain.MNI152.nii.gz':
                     with gzip.open(os.path.join(person_folder,'t1weighted_brain.MNI152.nii.gz'), "rb") as f_in:
                         with open(os.path.join(person_folder,'t1weighted_brain.MNI152.nii'), 'wb') as f_out:
@@ -38,14 +38,7 @@ def main(
 ):
     dataframe = find_sample(datapath)
 
-    df_train, df_valid = model_selection.train_test_split(
-        dataframe,
-        test_size=valid_size,
-        random_state=random_state,
-        shuffle=False
-    )
-    for source, mode in zip((df_train, df_valid), ("train", "valid")):
-        source.to_csv(f"data/dataset_{mode}.csv", index=False)
+    dataframe.to_csv(f"data/dataset.csv", index=False)
 
 
 if __name__ == "__main__":
