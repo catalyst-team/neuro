@@ -31,12 +31,6 @@ Project [manifest](https://github.com/catalyst-team/catalyst/blob/master/MANIFES
 
 [Catalyst at AI Landscape](https://landscape.lfai.foundation/selected=catalyst).
 
-You can launch training by following command in terminal:
-1. Download data via bash sripts/download_dataset.sh;
-2. Prepare data by python3 scripts/prepare_data.py ;
-3.1 Launch by command CUDA_VISIBLE_DEVICES=0 USE_APEX=0 catalyst-dl run --config=./config.yml.(if using 1 GPU)
-3.2 CUDA_VISIBLE_DEVICES=0,2 USE_APEX=1 USE_DDP=1 catalyst-dl run --config=./config.yml --verbose ((if more using 1 GPU))
-
 ---
 
 # Catalyst.Neuro [![Build Status](https://travis-ci.com/catalyst-team/neuro.svg?branch=master)](https://travis-ci.com/catalyst-team/neuro) [![Github contributors](https://img.shields.io/github/contributors/catalyst-team/neuro.svg?logo=github&logoColor=white)](https://github.com/catalyst-team/neuro/graphs/contributors)
@@ -51,9 +45,24 @@ Developed in a partnership with
 
 </div>
 
+### How to run
 
-
-
+You can reproduce MeshNet demo with 3 simple steps
+- Download data via
+    ```bash
+    bash sripts/download_dataset.sh
+    ```
+- Prepare data
+    ```bash
+    python3 scripts/prepare_data.py
+    ```
+- Start training
+    ```bash
+    # for single GPU usage
+    CUDA_VISIBLE_DEVICES=0 USE_APEX=0 catalyst-dl run --config=./config.yml  --verbose
+    # for multiGPU training
+    CUDA_VISIBLE_DEVICES=0,2 USE_APEX=1 USE_DDP=1 catalyst-dl run --config=./config.yml --verbose
+    ```
 
 
 
