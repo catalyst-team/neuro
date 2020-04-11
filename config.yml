@@ -1,0 +1,55 @@
+model_params:                      
+  model: UNet 
+  n_channels: 1
+  n_classes: 32
+args:
+  expdir: "./src"                    
+  logdir: "./logs" 
+runner_params:
+  input_key: "images"  # Пример
+  output_key: "logits"  # Пример   
+  
+distributed_params:  # OPTIONAL KEYWORD, параметры для distributed training и NVIDIA Apex
+  rank: 0 # Rank для distributed training
+  opt_level: O1  # Пример для NVIDIA Apex
+  syncbn: False 
+stages:                                    
+  state_params:                              
+    main_metric: &reduce_metric dice        
+    minimize_metric: False
+  data_params:                                  
+    num_workers: 1                              
+    batch_size: 1                          
+    in_csv: "./data/dataset.csv"                            
+  criterion_params:
+    criterion: DiceLoss                                          
+  stage1:                                       
+    state_params:                               
+      num_epochs: 100            
+    optimizer_params:                           
+      optimizer: SGD                         
+      lr: 0.001
+      momentum: 0.9                     
+      weight_decay: 0.0003                      
+    scheduler_params:                           
+      scheduler: MultiStepLR                    
+      milestones: [10]                          
+      gamma: 0.03                                
+    callbacks_params:                           
+      loss_dice:                               
+        callback: CriterionCallback             
+        input_key: labels                        
+        output_key: logits
+        prefix: &loss loss_dice                
+      
+      accuracy:                                 
+        callback: DiceCallback                  
+        input_key: labels
+        output_key: logits
+      optimizer:                           
+        callback: OptimizerCallback
+        loss_key: *loss
+      scheduler:                              
+        callback: SchedulerCallback
+      saver:                                 
+        callback: CheckpointCallback
