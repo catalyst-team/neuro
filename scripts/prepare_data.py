@@ -17,16 +17,10 @@ def find_sample(path):
                 continue
             person_folder = os.path.join(case_folder, person)
             for train in os.listdir(person_folder):
-                if train == 't1weighted_brain.MNI152.nii.gz':
-                    with gzip.open(os.path.join(person_folder,'t1weighted_brain.MNI152.nii.gz'), "rb") as f_in:
-                        with open(os.path.join(person_folder,'t1weighted_brain.MNI152.nii'), 'wb') as f_out:
-                            shutil.copyfileobj(f_in, f_out)
-                    labels_data["images"].append(os.path.join(person_folder,'t1weighted_brain.MNI152.nii'))
-                if train == 'labels.DKT31.manual.MNI152.nii.gz':
-                    with gzip.open(os.path.join(person_folder,'labels.DKT31.manual.MNI152.nii.gz'), "rb") as f_in:
-                        with open(os.path.join(person_folder,'labels.DKT31.manual.MNI152.nii'), 'wb') as f_out:
-                            shutil.copyfileobj(f_in, f_out)
-                    labels_data["labels"].append(os.path.join(person_folder,'labels.DKT31.manual.MNI152.nii'))
+                if train == 't1weighted.nii':
+                    labels_data["images"].append(os.path.join(person_folder,'t1weighted.nii'))
+                if train == 'labels.DKT31.manual+aseg.nii':
+                    labels_data["labels"].append(os.path.join(person_folder,'labels.DKT31.manual.nii'))
     return pd.DataFrame(labels_data)
 
 

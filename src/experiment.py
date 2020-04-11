@@ -6,12 +6,13 @@ import torch
 from torch import nn
 
 from catalyst.contrib.utils.pandas import read_csv_data
-from .reader import NiftiReader
+from reader import NiftiReader_Mask, NiftiReader_Image
 from catalyst.data import (
     ListDataset,
     ReaderCompose,
 )
-
+from catalyst.data import Augmentor
+from torchvision import transforms
 from catalyst.dl import ConfigExperiment
 
 
@@ -30,9 +31,13 @@ class Experiment(ConfigExperiment):
         return model_
     def get_transforms(self, stage: str = None, mode: str = None):
         if mode == "train":
-            return torch.from_numpy
+            Augmentor1 = Augmentor(dict_key = "images" ,augment_fn=lambda x: torch.from_numpy(x).float())
+            Augmentor2 = Augmentor(dict_key = "labels" ,augment_fn=lambda x: torch.from_numpy(x)[0])
+            return transforms.Compose([Augmentor1, Augmentor2])
         elif mode == "valid":
-            return torch.from_numpy
+            Augmentor1 = Augmentor(dict_key = "images" ,augment_fn=lambda x: torch.from_numpy(x).float())
+            Augmentor2 = Augmentor(dict_key = "labels" ,augment_fn=lambda x: torch.from_numpy(x)[0])
+            return transforms.Compose([Augmentor1, Augmentor2])
         
 
     def get_datasets(
@@ -43,16 +48,18 @@ class Experiment(ConfigExperiment):
         in_csv_train: str = None,
         in_csv_valid: str = None,
     ):
-
-        df_train = pd.read_csv(in_csv_train)
-        df_valid = pd.read_csv(in_csv_valid)
+        train_folds = [1] * 80
+        valid_folds = [2] * 20
+        infer_folds = [3] * 1
+        df, df_train, df_valid, df_infer = read_csv_data(in_csv=in_csv, train_folds = train_folds, valid_folds = valid_folds, infer_folds = infer_folds)
+                                                                                                             
         datasets = collections.OrderedDict()
         open_fn = ReaderCompose(
             readers=[
-                NiftiReader(
+                NiftiReader_Image(
                     input_key="images", output_key="images"
                 ),
-                NiftiReader(
+                NiftiReader_Mask(
                     input_key="labels", output_key="labels"
                 ),
             ]
