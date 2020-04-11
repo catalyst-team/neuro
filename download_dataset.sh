@@ -1,6 +1,6 @@
-download-gdrive 18u079L79PxWKJHobI_fYy06Sa1Rl4RbU brain_data.zip
-mkdir data
-mkdir data/Mindbonggle_101
-unzip brain_data.zip &>/dev/null 
-mv brain_data/* data/Mindbonggle_101
+download-gdrive 1fA7hH7xKnt1Y9g9ExlUkb9seDpnC8o37 brain_data.zip
+mkdir ../data
+mkdir ../data/dataverse_files
+unzip brain_data.zip &>/dev/null
+mv brain_data/* ../data/dataverse_files
 rm brain_data.zip
