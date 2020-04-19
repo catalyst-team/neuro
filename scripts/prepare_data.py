@@ -67,7 +67,7 @@ def find_sample(path):
                 if train == 't1weighted.nii':
                     labels_data["images"].append(os.path.join(person_folder,'t1weighted.nii'))
                 if train == 'labels.DKT31.manual+aseg.nii':
-                    #save_segmentation(os.path.join(person_folder, train))
+                    save_segmentation(os.path.join(person_folder, train))
                     labels_data["labels"].append(os.path.join(person_folder,'prepared_labels.DKT31.manual.npy'))
                     print(t)
                     t+=1
