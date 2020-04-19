@@ -54,7 +54,9 @@ You can reproduce MeshNet demo with 3 simple steps
     ```
 - Prepare data
     ```bash
-    python3 scripts/prepare_data.py
+    python3 scripts/prepare_data.py folder_to_files, number_of_patch
+    folder_to_files - path to brain_dataset (str)
+    number_of_patch - number of patch (int)
     ```
 - Start training
     ```bash
