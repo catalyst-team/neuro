@@ -45,7 +45,7 @@ class Up(nn.Module):
 
         # if bilinear, use the normal convolutions to reduce the number of channels
         if bilinear:
-            self.up = nn.Upsample(scale_factor=2)
+            self.up = nn.Upsample(scale_factor=2, mode='trilinear', align_corners=True)
             self.conv = DoubleConv(in_channels, out_channels // 2, in_channels // 2)
         else:
             self.up = nn.ConvTranspose3d(in_channels , in_channels // 2, kernel_size=2, stride=2)
@@ -57,10 +57,11 @@ class Up(nn.Module):
         # input is CHW
         diffZ = torch.tensor([x2.size()[2] - x1.size()[2]])
         diffY = torch.tensor([x2.size()[3] - x1.size()[3]])
-        diffX = torch.tensor([x2.size()[4] - x1.size()[4]])
+        diffX = torch.tensor([x2.size()[4] - x1.size()[3]])
+
         x1 = F.pad(x1, [diffX // 2, diffX - diffX // 2,
                         diffY // 2, diffY - diffY // 2,
-                        diffZ // 2, diffZ - diffZ // 2])
+                        diffZ // 2, diffY - diffZ // 2])
         # if you have padding issues, see
         # https://github.com/HaiyongJiang/U-Net-Pytorch-Unstructured-Buggy/commit/0e854509c2cea854e247a9c615f175f76fbb2e3a
         # https://github.com/xiaopeng-liao/Pytorch-UNet/commit/8ebac70e633bac59fc22bb5195e513d5832fb3bd
@@ -72,6 +73,5 @@ class OutConv(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(OutConv, self).__init__()
         self.conv = nn.Conv3d(in_channels, out_channels, kernel_size=1)
-
     def forward(self, x):
         return self.conv(x)

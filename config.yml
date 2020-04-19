@@ -1,7 +1,7 @@
 model_params:                      
-  model: UNet 
+  model: UNet
   n_channels: 1
-  n_classes: 32
+  n_classes: 106
 args:
   expdir: "./src"                    
   logdir: "./logs" 
@@ -15,26 +15,27 @@ distributed_params:  # OPTIONAL KEYWORD, параметры для distributed t
   syncbn: False 
 stages:                                    
   state_params:                              
-    main_metric: &reduce_metric dice        
+    main_metric: &reduce_metric dice       
     minimize_metric: False
   data_params:                                  
-    num_workers: 1                              
-    batch_size: 1                          
-    in_csv: "./data/dataset.csv"                            
+    num_workers: 4                           
+    batch_size: 4                      
+    in_csv: "./data/dataset.csv"  
+    in_csv_train: "./data/dataset_train.csv"            
+    in_csv_valid: "./data/dataset_valid.csv"      
+    in_csv_infer: "./data/dataset_infer.csv"          
   criterion_params:
-    criterion: DiceLoss                                          
+    criterion: DiceLoss                                    
   stage1:                                       
     state_params:                               
-      num_epochs: 100            
+      num_epochs: 10            
     optimizer_params:                           
-      optimizer: SGD                         
+      optimizer: Adam
       lr: 0.001
-      momentum: 0.9                     
-      weight_decay: 0.0003                      
+      weight_decay: 0.0001                     
     scheduler_params:                           
-      scheduler: MultiStepLR                    
-      milestones: [10]                          
-      gamma: 0.03                                
+      scheduler: CosineAnnealingLR                    
+      T_max: 30                                             
     callbacks_params:                           
       loss_dice:                               
         callback: CriterionCallback             

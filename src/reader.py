@@ -3,6 +3,9 @@ import nibabel as nib
 import os
 import numpy as np
 import math
+import ast 
+
+import numpy as np
 
 class NiftiReader_Image(ReaderSpec):
     """
@@ -11,6 +14,7 @@ class NiftiReader_Image(ReaderSpec):
     def __init__(
         self,
         input_key: str,
+        coords: list,
         output_key: str,
         rootpath: str = None
     ):
@@ -25,6 +29,7 @@ class NiftiReader_Image(ReaderSpec):
         """
         super().__init__(input_key, output_key)
         self.rootpath = rootpath
+        self.coords = coords
 
     def __call__(self, element):
         """Reads a row from your annotations dict with filename and
@@ -34,20 +39,22 @@ class NiftiReader_Image(ReaderSpec):
         Returns:
             np.ndarray: Image
         """
+        coords = ast.literal_eval(element[self.coords])
         image_name = str(element[self.input_key])
-
-        # img = nib.load(
-        #     os.path.join(self.rootpath, image_name)
-        # )
-        y = np.zeros((1,256,256,256))
-        img = nib.load(image_name, mmap=False)
+        subvolume_shape = np.array([64,64,64])
+        x = np.zeros((1,subvolume_shape[0],subvolume_shape[1],subvolume_shape[2]))
+        img = nib.load(image_name)
         img = img.get_fdata(dtype=np.float32)
         img = (img - img.min())/(img.max()-img.min())
         img = img*255.0
-        img = np.transpose(img,(2, 0, 1))
-        
-        y[0,:img.shape[0],:img.shape[1],:img.shape[2]] = img
-        output = {self.output_key: y}
+        new_img = np.zeros([256,256,256])
+        new_img[:img.shape[0], :img.shape[1], :img.shape[2]] = img
+        x[0,:subvolume_shape[0],:subvolume_shape[1],:subvolume_shape[2]] = new_img[
+                    coords[0][0]:coords[0][1], 
+                    coords[1][0]:coords[1][1], 
+                    coords[2][0]:coords[2][1]]
+
+        output = {self.output_key: x.astype(np.float32)}
         return output
 
 class NiftiReader_Mask(ReaderSpec):
@@ -57,6 +64,7 @@ class NiftiReader_Mask(ReaderSpec):
     def __init__(
         self,
         input_key: str,
+        coords,
         output_key: str,
         rootpath: str = None
     ):
@@ -71,6 +79,7 @@ class NiftiReader_Mask(ReaderSpec):
         """
         super().__init__(input_key, output_key)
         self.rootpath = rootpath
+        self.coords = coords
 
     def __call__(self, element):
         """Reads a row from your annotations dict with filename and
@@ -80,28 +89,16 @@ class NiftiReader_Mask(ReaderSpec):
         Returns:
             np.ndarray: Image
         """
+        coords = ast.literal_eval(element[self.coords])
+        subvolume_shape = np.array([64,64,64])
         image_name = str(element[self.input_key])
-
-        # img = nib.load(
-        #     os.path.join(self.rootpath, image_name)
-        # )
-        
-        img = nib.load(image_name)
-
-        img = nib.load(image_name, mmap=False)
-        img = img.get_fdata(dtype=np.float32)
-        img = np.transpose(img,(2, 0, 1))
-        with open("./src/label_protocol.txt","r") as f:
-            t = f.read()
-        labels = [int(x) for x in t.split(",")]
-        segmentation = np.zeros((len(labels),256,256,256))
-        segmentation[0,:,:,:] = np.ones([256,256,256])
-        for k in range(1,len(labels)):
-            seg_one = img == labels[k]
-            segmentation[k,:img.shape[0],:img.shape[1],:img.shape[2]] = seg_one
-            segmentation[0,:,:,:] = segmentation[0,:,:,:] - segmentation[k,:,:,:]
-        output = {self.output_key: segmentation.astype('int64')}
+        label = np.load(image_name, allow_pickle=True)
+        y = np.zeros([label.shape[0],subvolume_shape[0], subvolume_shape[1], subvolume_shape[2]])
+        y[:,:subvolume_shape[0],:subvolume_shape[1],:subvolume_shape[2]] = label[:,
+                    coords[0][0]:coords[0][1], 
+                    coords[1][0]:coords[1][1],  
+                    coords[2][0]:coords[2][1]]
+        output = {self.output_key: y}
         return output
-
 
 
