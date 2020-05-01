@@ -47,21 +47,25 @@ Developed in a partnership with
 
 ### How to run
 
-You can reproduce MeshNet demo with 3 simple steps
+You can reproduce MeshNet demo with 4 simple steps
+- Install requirements
+    ```bash
+    pip install -r ./requirements/requirements.txt
+    ```
 - Download data via
     ```bash
-    bash sripts/download_dataset.sh
+    bash bin/download_dataset.sh
     ```
 - Prepare data
     ```bash
-    python3 scripts/prepare_data.py
+    python neuro/scripts/prepare_data.py
     ```
 - Start training
     ```bash
     # for single GPU usage
-    CUDA_VISIBLE_DEVICES=0 USE_APEX=0 catalyst-dl run --config=./config.yml  --verbose
+    CUDA_VISIBLE_DEVICES=0 USE_APEX=0 catalyst-dl run --config=./configs/config.yml  --verbose
     # for multiGPU training
-    CUDA_VISIBLE_DEVICES=0,2 USE_APEX=1 USE_DDP=1 catalyst-dl run --config=./config.yml --verbose
+    CUDA_VISIBLE_DEVICES=0,2 USE_APEX=1 USE_DDP=1 catalyst-dl run --config=./configs/config.yml --verbose
     ```
 
 
