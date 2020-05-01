@@ -1,17 +1,15 @@
-from catalyst.data import ReaderSpec
 import numpy as np
+
+from catalyst.data import ReaderSpec
 
 
 class NiftiReader(ReaderSpec):
     """
-    Nifti reader abstraction for NeuroImaging. Reads nifti images from a `csv` dataset.
+    Nifti reader abstraction for NeuroImaging.
+    Reads nifti images from a `csv` dataset.
     """
-    def __init__(
-        self,
-        input_key: str,
-        output_key: str,
-        rootpath: str = None
-    ):
+
+    def __init__(self, input_key: str, output_key: str, rootpath: str = None):
         """
         Args:
             input_key (str): key to use from annotation dict
@@ -25,7 +23,8 @@ class NiftiReader(ReaderSpec):
         self.rootpath = rootpath
 
     def __call__(self, element):
-        """Reads a row from your annotations dict with filename and
+        """
+        Reads a row from your annotations dict with filename and
         transfer it to an image
         Args:
             element: elem in your dataset.
@@ -35,5 +34,3 @@ class NiftiReader(ReaderSpec):
         image = np.frombuffer(element[self.input_key], dtype=np.uint8)
         output = {self.output_key: image}
         return output
-
-
