@@ -5,19 +5,20 @@ import nibabel as nib
 import numpy as np
 import pandas as pd
 
+with open("./presets/label_protocol_unique.txt", "r") as f:
+    LABELS = f.read()
+LABELS = [int(x) for x in LABELS.split(",")]
+
 
 def save_segmentation(filename):
     """Docs."""
-    with open("../presets/label_protocol_unique.txt", "r") as f:
-        t = f.read()
-
-    labels = [int(x) for x in t.split(",")]
+    global LABELS
     path = os.path.dirname(filename)
     img = nib.load(filename, mmap=False)
     img = img.get_fdata(dtype=np.float32)
-    segmentation = np.zeros([len(labels), 256, 256, 256])
+    segmentation = np.zeros([len(LABELS), 256, 256, 256])
     k = 0
-    for l in labels:
+    for l in LABELS:
         segmentation[k, : img.shape[0], : img.shape[1], : img.shape[2]] = (
             img == l
         )
@@ -34,9 +35,7 @@ def save_image(image_name, path):
     img = (img - img.min()) / (img.max() - img.min())
     img = img * 255.0
     new_img = np.zeros([1, 256, 256, 256])
-    new_img[
-        0, : img.shape[0], : img.shape[1], : img.shape[2]
-    ] = img
+    new_img[0, : img.shape[0], : img.shape[1], : img.shape[2]] = img
     np.save(os.path.join(path, "prepared_labels.DKT31.manual.npy"), new_img)
     return new_img.tobytes()
 
@@ -85,4 +84,3 @@ if __name__ == "__main__":
     params = parser.parse_args()
 
     main(params.datapath)
-
