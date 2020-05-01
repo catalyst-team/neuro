@@ -89,7 +89,7 @@ def find_sample(path):
 
 def generation_coordinates(data, num_samples):
     """Docs."""
-    out_data = {"images": [], "labels": [], "coords": [], "test": []}
+    out_data = {"images": [], "labels": [], "coords": [], "split": []}
     for i in range(len(data)):
         if i < len(data) * 0.8:
             for coords in [coords_generator() for k in range(num_samples)]:
