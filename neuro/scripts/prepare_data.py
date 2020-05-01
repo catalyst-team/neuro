@@ -8,7 +8,7 @@ import pandas as pd
 
 def save_segmentation(filename):
     """Docs."""
-    with open("./presets/label_protocol_unique.txt", "r") as f:
+    with open("../presets/label_protocol_unique.txt", "r") as f:
         t = f.read()
 
     labels = [int(x) for x in t.split(",")]
@@ -35,7 +35,7 @@ def save_image(image_name, path):
     img = img * 255.0
     new_img = np.zeros([1, 256, 256, 256])
     new_img[
-        0, : new_img.shape[1], : new_img.shape[2], : new_img.shape[3]
+        0, : img.shape[0], : img.shape[1], : img.shape[2]
     ] = img
     np.save(os.path.join(path, "prepared_labels.DKT31.manual.npy"), new_img)
     return new_img.tobytes()
@@ -58,7 +58,7 @@ def find_sample(path):
                     continue
                 if sample == "t1weighted.nii":
                     labels_data["images"].append(
-                        save_image(os.path.join(person_folder, sample))
+                        save_image(os.path.join(person_folder, sample), path)
                     )
                 if sample == "labels.DKT31.manual+aseg.nii":
                     labels_data["labels"].append(
@@ -73,10 +73,10 @@ def find_sample(path):
 def main(datapath):
     """Docs."""
     dataframe = find_sample(datapath)
-    dataframe.to_csv(f"data/dataset.csv", index=False)
-    dataframe.iloc[:80, :].to_csv(f"data/dataset_train.csv", index=False)
-    dataframe.iloc[80:100, :].to_csv(f"data/dataset_valid.csv", index=False)
-    dataframe.iloc[-1, :].to_csv(f"data/dataset_infer.csv", index=False)
+    dataframe.to_csv("data/dataset.csv", index=False)
+    dataframe.iloc[:80, :].to_csv("data/dataset_train.csv", index=False)
+    dataframe.iloc[80:100, :].to_csv("data/dataset_valid.csv", index=False)
+    dataframe.iloc[-1, :].to_csv("data/dataset_infer.csv", index=False)
 
 
 if __name__ == "__main__":
