@@ -16,42 +16,45 @@ from torchvision import transforms
 from catalyst.dl import ConfigExperiment
 
 
-def gaussian_coordinate_generator(volume_shape, subvolume_shape, mus=None, sigmas=None):
-    """
-    Initiliaze generator for truncated gaussian coordinates.
-    Arguments:
-        mus (array of ints): mean values
-        sigmas (array of ints): std values
-    """
-    #_half_subvolume_shape
-    # input _volume_shape
+volume_shape = np.array([256,256,256])
+subvolume_shape = np.array([64,64,64])
 
-    # subvolume_shape = np.array([38, 38, 38])
+half_subvolume_shape = subvolume_shape // 2
 
-    half_subvolume_shape = subvolume_shape // 2
-    
-    if mus is None:
-        mus = np.array(
-            [volume_shape[0] // 2, 
-            volume_shape[0] // 2, 
-            volume_shape[0] // 2]
-        )
-    if sigmas is None:
-        sigmas = np.array(
-            [volume_shape[0] // 4, 
-            volume_shape[0] // 4, 
-            volume_shape[0] // 4]
-        )
-    truncnorm_coordinates = truncnorm(
-        (half_subvolume_shape - mus + 1) / sigmas, 
-        (volume_shape - half_subvolume_shape - mus) / sigmas, 
-        loc=mus, scale=sigmas
-    )
+mus = np.array(
+    [volume_shape[0] // 2,
+    volume_shape[0] // 2,
+    volume_shape[0] // 2]
+)
+sigmas = np.array(
+    [volume_shape[0] // 4,
+    volume_shape[0] // 4,
+    volume_shape[0] // 4]
+)
+
+truncnorm_coordinates = truncnorm(
+    (half_subvolume_shape - mus + 1) / sigmas,
+    (volume_shape - half_subvolume_shape - mus) / sigmas,
+    loc=mus, scale=sigmas
+)
+
+def coords_generator():
     xyz = np.round(truncnorm_coordinates.rvs(size=(1, 3))[0]).astype('int')
     xyz_start = xyz - half_subvolume_shape
     xyz_end = xyz + half_subvolume_shape
     xyz_coords = np.vstack((xyz_start, xyz_end)).T
     return xyz_coords
+
+
+def generation_coordinates(image, n_samples):
+    for coords in [coords_generator() for k in range(n_samples)]:
+        img = np.zeros(len(image.shape[0]), subvolume_shape[0], subvolume_shape[1], subvolume_shape[2])
+        for k in range(len(image.shape[0])):
+            img[k:,:subvolume_shape[0],
+            :subvolume_shape[1],:subvolume_shape[2]] = image[coords[0][0]: coords[0][1],
+            coords[1][0]: coords[1][1],
+            coords[2][0]: coords[2][1]]
+    return pd.DataFrame(out_data)
 
 class Experiment(ConfigExperiment):
 
@@ -93,12 +96,10 @@ class Experiment(ConfigExperiment):
         datasets = collections.OrderedDict()
         open_fn = ReaderCompose(
             readers=[
-                NiftiReader_Image(
-                    input_key="images", output_key="images", coords="coords"
-                ),
-                NiftiReader_Mask(
-                    input_key="labels", output_key="labels", coords="coords"
-                ),
+                NiftiReader(
+                    input_key="images", output_key="images"),
+                NiftiReader(
+                    input_key="labels", output_key="labels"),
             ]
         )
 
