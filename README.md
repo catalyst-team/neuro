@@ -58,7 +58,7 @@ You can reproduce MeshNet demo with 4 simple steps
     ```
 - Prepare data
     ```bash
-    python neuro/scripts/prepare_data.py
+    python neuro/scripts/prepare_data.py /mnt/hdd2/data/neuro/data/Mindbonggle_101 100
     ```
 - Start training
     ```bash

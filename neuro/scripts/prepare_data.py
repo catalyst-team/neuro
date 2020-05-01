@@ -60,16 +60,22 @@ def find_sample(path):
     labels_data = {"images": [], "labels": []}
     t = 0
     for case in os.listdir(path):
+        if case.startswith("."):
+            continue
         case_folder = os.path.join(path, case)
         for person in os.listdir(case_folder):
+            if person.startswith("."):
+                continue
             person_folder = os.path.join(case_folder, person)
-            for train in os.listdir(person_folder):
-                if train == "t1weighted.nii":
+            for sample in os.listdir(person_folder):
+                if sample.startswith("."):
+                    continue
+                if sample == "t1weighted.nii":
                     labels_data["images"].append(
                         os.path.join(person_folder, "t1weighted.nii")
                     )
-                if train == "labels.DKT31.manual+aseg.nii":
-                    save_segmentation(os.path.join(person_folder, train))
+                if sample == "labels.DKT31.manual+aseg.nii":
+                    save_segmentation(os.path.join(person_folder, sample))
                     labels_data["labels"].append(
                         os.path.join(
                             person_folder, "prepared_labels.DKT31.manual.npy"
@@ -81,12 +87,12 @@ def find_sample(path):
     return pd.DataFrame(labels_data)
 
 
-def generation_coordinates(data, n_samples):
+def generation_coordinates(data, num_samples):
     """Docs."""
     out_data = {"images": [], "labels": [], "coords": [], "test": []}
     for i in range(len(data)):
         if i < len(data) * 0.8:
-            for coords in [coords_generator() for k in range(n_samples)]:
+            for coords in [coords_generator() for k in range(num_samples)]:
                 out_data["images"].append(data.iloc[i, 0])
                 out_data["labels"].append(data.iloc[i, 1])
                 out_data["coords"].append(coords.tolist())
@@ -100,9 +106,9 @@ def generation_coordinates(data, n_samples):
     return pd.DataFrame(out_data)
 
 
-def main(datapath, n_samples):
+def main(datapath, num_samples):
     """Docs."""
-    dataframe = generation_coordinates(find_sample(datapath), n_samples)
+    dataframe = generation_coordinates(find_sample(datapath), num_samples)
     dataframe.to_csv(f"data/dataset.csv", index=False)
     dataframe[dataframe["split"] == 0][["images", "labels", "coords"]].to_csv(
         f"data/dataset_train.csv", index=False
@@ -116,7 +122,7 @@ def main(datapath, n_samples):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="folders to files")
     parser.add_argument("datapath", type=str, help="dir with image")
-    parser.add_argument("n_samples", type=int, help="number of sample")
+    parser.add_argument("num_samples", type=int, help="number of sample")
     params = parser.parse_args()
 
-    main(params.datapath, params.n_samples)
+    main(params.datapath, params.num_samples)
