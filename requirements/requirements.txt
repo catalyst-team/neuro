@@ -1,5 +1,5 @@
-alchemy
-catalyst
-reaction
+alchemy==20.04
+catalyst==20.04.2
+reaction==20.02
 
 nibabel

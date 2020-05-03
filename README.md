@@ -58,14 +58,14 @@ You can reproduce MeshNet demo with 4 simple steps
     ```
 - Prepare data
     ```bash
-    python neuro/scripts/prepare_data.py
+    python neuro/scripts/prepare_data.py ./data/Mindbonggle_101
     ```
 - Start training
     ```bash
     # for single GPU usage
-    CUDA_VISIBLE_DEVICES=0 USE_APEX=0 catalyst-dl run --config=./configs/config.yml  --verbose
+    CUDA_VISIBLE_DEVICES=0 USE_APEX=0 catalyst-dl run --config=./training/configs/config.yml  --verbose
     # for multiGPU training
-    CUDA_VISIBLE_DEVICES=0,2 USE_APEX=1 USE_DDP=1 catalyst-dl run --config=./configs/config.yml --verbose
+    CUDA_VISIBLE_DEVICES=0,2 USE_APEX=1 USE_DDP=1 catalyst-dl run --config=./training/configs/config.yml --verbose
     ```
 
 
