@@ -1,5 +1,6 @@
 import ast
 
+import nibabel as nib
 import numpy as np
 
 from catalyst.data import ReaderSpec
@@ -40,14 +41,19 @@ class NiftiReader_Image(ReaderSpec):
         """
         coords = ast.literal_eval(element[self.coords])
         image_name = str(element[self.input_key])
-        img = np.load(image_name)
+        img = nib.load(image_name)
+        img = img.get_fdata(dtype=np.float32)
+        img = (img - img.min()) / (img.max() - img.min())
+        img = img * 255.0
+        new_img = np.zeros([256, 256, 256])
+        new_img[: img.shape[0], : img.shape[1], : img.shape[2]] = img
         subvolume_shape = np.array([64, 64, 64])
         x = np.zeros(
             (1, subvolume_shape[0], subvolume_shape[1], subvolume_shape[2])
         )
         x[
             0, : subvolume_shape[0], : subvolume_shape[1], : subvolume_shape[2]
-        ] = img[
+        ] = new_img[
             coords[0][0] : coords[0][1],
             coords[1][0] : coords[1][1],
             coords[2][0] : coords[2][1],
@@ -89,10 +95,25 @@ class NiftiReader_Mask(ReaderSpec):
         coords = ast.literal_eval(element[self.coords])
         subvolume_shape = np.array([64, 64, 64])
         image_name = str(element[self.input_key])
-        label = np.load(image_name, allow_pickle=True)
+        with open(
+            "/home/Bekovmi/neuro/presets/label_protocol_unique.txt", "r"
+        ) as f:
+            t = f.read()
+
+        labels = [int(x) for x in t.split(",")]
+        img = nib.load(image_name, mmap=False)
+        img = img.get_fdata(dtype=np.float32)
+        segmentation = np.zeros([len(labels), 256, 256, 256])
+        k = 0
+        for l in labels:
+            segmentation[k, : img.shape[0], : img.shape[1], : img.shape[2]] = (
+                img == l
+            )
+            k += 1
+        data = segmentation.astype("uint8")
         y = np.zeros(
             [
-                label.shape[0],
+                data.shape[0],
                 subvolume_shape[0],
                 subvolume_shape[1],
                 subvolume_shape[2],
@@ -100,7 +121,7 @@ class NiftiReader_Mask(ReaderSpec):
         )
         y[
             :, : subvolume_shape[0], : subvolume_shape[1], : subvolume_shape[2]
-        ] = label[
+        ] = data[
             :,
             coords[0][0] : coords[0][1],
             coords[1][0] : coords[1][1],

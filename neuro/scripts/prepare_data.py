@@ -1,7 +1,6 @@
 import argparse
 import os
 
-import nibabel as nib
 import numpy as np
 import pandas as pd
 from scipy.stats import truncnorm
@@ -25,10 +24,6 @@ truncnorm_coordinates = truncnorm(
     scale=sigmas,
 )
 
-with open("./presets/label_protocol_unique.txt", "r") as f:
-    t = f.read()
-LABELS = [int(x) for x in t.split(",")]
-
 
 def coords_generator():
     """
@@ -39,42 +34,6 @@ def coords_generator():
     xyz_end = xyz + half_subvolume_shape
     xyz_coords = np.vstack((xyz_start, xyz_end)).T
     return xyz_coords
-
-
-def save_images(filename):
-    """
-    Args:
-        filename (str): path to filename
-    """
-    img = nib.load(filename)
-    path = os.path.dirname(filename)
-    img = img.get_fdata(dtype=np.float32)
-    img = (img - img.min()) / (img.max() - img.min())
-    img = img * 255.0
-    new_img = np.zeros([256, 256, 256])
-    new_img[: img.shape[0], : img.shape[1], : img.shape[2]] = img
-    np.save(os.path.join(path, "prepared_t1weighted.npy"), new_img)
-
-
-def save_segmentation(filename):
-    """
-    Args:
-        filename (str): path to filename
-    """
-    global LABELS
-
-    path = os.path.dirname(filename)
-    img = nib.load(filename, mmap=False)
-    img = img.get_fdata(dtype=np.float32)
-    segmentation = np.zeros([len(LABELS), 256, 256, 256])
-    k = 0
-    for l in LABELS:
-        segmentation[k, : img.shape[0], : img.shape[1], : img.shape[2]] = (
-            img == l
-        )
-        k += 1
-    data = segmentation.astype("uint8")
-    np.save(os.path.join(path, "prepared_labels.DKT31.manual.npy"), data)
 
 
 def find_sample(path):
@@ -92,19 +51,17 @@ def find_sample(path):
             if person.startswith("."):
                 continue
             person_folder = os.path.join(case_folder, person)
-            for sample in os.listdir(person_folder):
-                if sample.startswith("."):
+            for train in os.listdir(person_folder):
+                if train.startswith("."):
                     continue
-                if sample == "t1weighted.nii":
-                    save_images(os.path.join(person_folder, sample))
+                if train == "t1weighted.nii":
                     labels_data["images"].append(
-                        os.path.join(person_folder, "t1weighted.npy")
+                        os.path.join(person_folder, "t1weighted.nii")
                     )
-                if sample == "labels.DKT31.manual+aseg.nii":
-                    save_segmentation(os.path.join(person_folder, sample))
+                if train == "labels.DKT31.manual+aseg.nii":
                     labels_data["labels"].append(
                         os.path.join(
-                            person_folder, "prepared_labels.DKT31.manual.npy"
+                            person_folder, "labels.DKT31.manual+aseg.nii"
                         )
                     )
                     print(t)
@@ -143,14 +100,14 @@ def main(datapath, n_samples):
         n_samples (int): numbers of samples
     """
     dataframe = generation_coordinates(find_sample(datapath), n_samples)
-    dataframe.to_csv("data/dataset.csv", index=False)
+    dataframe.to_csv("./data/dataset.csv", index=False)
     dataframe[dataframe["split"] == 0][["images", "labels", "coords"]].to_csv(
-        "data/dataset_train.csv", index=False
+        "./data/dataset_train.csv", index=False
     )
     dataframe[dataframe["split"] == 1][["images", "labels", "coords"]].to_csv(
-        "data/dataset_valid.csv", index=False
+        "./data/dataset_valid.csv", index=False
     )
-    # dataframe.iloc[-1, :2].to_csv(f"data/dataset_infer.csv", index=False)
+    dataframe.iloc[-1, :2].to_csv("./data/dataset_infer.csv", index=False)
 
 
 if __name__ == "__main__":
