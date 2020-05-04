@@ -60,7 +60,7 @@ You can reproduce MeshNet demo with 4 simple steps
     ```bash
     python neuro/scripts/prepare_data.py ./data/Mindbonggle_101 100
     ```
-- Start training
+- Start training (requires 64GB RAM due to data preprocessing)
     ```bash
     # for single GPU usage
     CUDA_VISIBLE_DEVICES=0 USE_APEX=0 catalyst-dl run --config=./training/configs/config.yml  --verbose
