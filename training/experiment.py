@@ -43,7 +43,7 @@ class Experiment(ConfigExperiment):
                 augment_fn=lambda x: torch.from_numpy(x).float(),
             )
             Augmentor2 = Augmentor(
-                dict_key="labels", augment_fn=lambda x: torch.from_numpy(x)
+                dict_key="labels", augment_fn=lambda x: torch.from_numpy(x).long()
             )
             return transforms.Compose([Augmentor1, Augmentor2])
         elif mode == "valid":
@@ -52,7 +52,7 @@ class Experiment(ConfigExperiment):
                 augment_fn=lambda x: torch.from_numpy(x).float(),
             )
             Augmentor2 = Augmentor(
-                dict_key="labels", augment_fn=lambda x: torch.from_numpy(x)
+                dict_key="labels", augment_fn=lambda x: torch.from_numpy(x).long()
             )
             return transforms.Compose([Augmentor1, Augmentor2])
 
