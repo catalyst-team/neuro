@@ -1,9 +1,10 @@
 import argparse
 import os
 
-from infer import Predictor
 import nibabel as nib
 import numpy as np
+
+from .infer import Predictor
 
 
 def Brain_Segmenatation(path_in, path_out, path_model):
