@@ -23,9 +23,9 @@ stages:
   data_params:
     num_workers: 4
     batch_size: 4
-    in_csv_train: "/home/Bekovmi/neuro/bin/data/dataset_train.csv"
-    in_csv_valid: "/home/Bekovmi/neuro/bin/data/dataset_valid.csv"
-    in_csv_infer: "/home/Bekovmi/neuro/bin/data/dataset_infer.csv"
+    in_csv_train: "./data/dataset_train.csv"
+    in_csv_valid: "./data/dataset_valid.csv"
+    in_csv_infer: "./data/dataset_infer.csv"
 
   criterion_params:
     criterion: DiceLoss

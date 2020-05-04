@@ -1,7 +1,7 @@
 import ast
 
-import numpy as np
 import nibabel as nib
+import numpy as np
 
 from catalyst.data import ReaderSpec
 
@@ -95,7 +95,9 @@ class NiftiReader_Mask(ReaderSpec):
         coords = ast.literal_eval(element[self.coords])
         subvolume_shape = np.array([64, 64, 64])
         image_name = str(element[self.input_key])
-        with open("/home/Bekovmi/neuro/presets/label_protocol_unique.txt", "r") as f:
+        with open(
+            "/home/Bekovmi/neuro/presets/label_protocol_unique.txt", "r"
+        ) as f:
             t = f.read()
 
         labels = [int(x) for x in t.split(",")]
@@ -105,7 +107,7 @@ class NiftiReader_Mask(ReaderSpec):
         k = 0
         for l in labels:
             segmentation[k, : img.shape[0], : img.shape[1], : img.shape[2]] = (
-                    img == l
+                img == l
             )
             k += 1
         data = segmentation.astype("uint8")

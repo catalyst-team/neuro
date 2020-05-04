@@ -1,7 +1,6 @@
 import argparse
 import os
 
-
 import numpy as np
 import pandas as pd
 from scipy.stats import truncnorm
@@ -45,10 +44,16 @@ def find_sample(path):
     labels_data = {"images": [], "labels": []}
     t = 0
     for case in os.listdir(path):
+        if case.startswith("."):
+            continue
         case_folder = os.path.join(path, case)
         for person in os.listdir(case_folder):
+            if person.startswith("."):
+                continue
             person_folder = os.path.join(case_folder, person)
             for train in os.listdir(person_folder):
+                if train.startswith("."):
+                    continue
                 if train == "t1weighted.nii":
                     labels_data["images"].append(
                         os.path.join(person_folder, "t1weighted.nii")
@@ -95,14 +100,14 @@ def main(datapath, n_samples):
         n_samples (int): numbers of samples
     """
     dataframe = generation_coordinates(find_sample(datapath), n_samples)
-    dataframe.to_csv("/home/Bekovmi/neuro/bin/data/dataset.csv", index=False)
+    dataframe.to_csv("./data/dataset.csv", index=False)
     dataframe[dataframe["split"] == 0][["images", "labels", "coords"]].to_csv(
-        "/home/Bekovmi/neuro/bin/data/dataset_train.csv", index=False
+        "./data/dataset_train.csv", index=False
     )
     dataframe[dataframe["split"] == 1][["images", "labels", "coords"]].to_csv(
-        "/home/Bekovmi/neuro/bin/data/dataset_valid.csv", index=False
+        "./data/dataset_valid.csv", index=False
     )
-    dataframe.iloc[-1, :2].to_csv("/home/Bekovmi/neuro/bin/data/dataset_infer.csv", index=False)
+    dataframe.iloc[-1, :2].to_csv("./data/dataset_infer.csv", index=False)
 
 
 if __name__ == "__main__":
