@@ -95,9 +95,7 @@ class NiftiReader_Mask(ReaderSpec):
         coords = ast.literal_eval(element[self.coords])
         subvolume_shape = np.array([64, 64, 64])
         image_name = str(element[self.input_key])
-        with open(
-            "/home/Bekovmi/neuro/presets/label_protocol_unique.txt", "r"
-        ) as f:
+        with open("./presets/label_protocol_unique.txt", "r") as f:
             t = f.read()
 
         labels = [int(x) for x in t.split(",")]
@@ -127,5 +125,5 @@ class NiftiReader_Mask(ReaderSpec):
             coords[1][0] : coords[1][1],
             coords[2][0] : coords[2][1],
         ]
-        output = {self.output_key: y}
+        output = {self.output_key: y.astype(np.float32)}
         return output
