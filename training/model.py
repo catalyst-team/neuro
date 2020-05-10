@@ -1,9 +1,8 @@
+from unet_parts import DoubleConv, Down, OutConv, Up
+
 import torch.nn as nn
 
-from .unet_parts import DoubleConv, Down, OutConv, Up
 
-
-# @registry.Model
 class UNet(nn.Module):
     """Docs."""
 
