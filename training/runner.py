@@ -91,14 +91,14 @@ class NeuroRunner(Runner):
 
                 x[
                     0,
-                    :self.subvolume_shape[0],
-                    :self.subvolume_shape[1],
-                    :self.subvolume_shape[2],
+                    : self.subvolume_shape[0],
+                    : self.subvolume_shape[1],
+                    : self.subvolume_shape[2],
                 ] = batch[key][
                     0,
-                    coords[0][0]:coords[0][1],
-                    coords[1][0]:coords[1][1],
-                    coords[2][0]:coords[2][1],
+                    coords[0][0] : coords[0][1],
+                    coords[1][0] : coords[1][1],
+                    coords[2][0] : coords[2][1],
                 ]
                 output[self.input_key] = x.unsqueeze(0)
             elif key == self.target_key:
@@ -112,15 +112,15 @@ class NeuroRunner(Runner):
                 y[
                     0,
                     :,
-                    :self.subvolume_shape[0],
-                    :self.subvolume_shape[1],
-                    :self.subvolume_shape[2],
+                    : self.subvolume_shape[0],
+                    : self.subvolume_shape[1],
+                    : self.subvolume_shape[2],
                 ] = batch[key][
                     0,
                     :,
-                    coords[0][0]:coords[0][1],
-                    coords[1][0]:coords[1][1],
-                    coords[2][0]:coords[2][1],
+                    coords[0][0] : coords[0][1],
+                    coords[1][0] : coords[1][1],
+                    coords[2][0] : coords[2][1],
                 ]
                 output[key] = y
         return output
@@ -156,8 +156,8 @@ class NeuroRunner(Runner):
             else loader.batch_size
         )
         self.state.global_step = (
-            self.state.global_step or
-            self.state.global_epoch * len(loader) * self.state.batch_size
+            self.state.global_step
+            or self.state.global_epoch * len(loader) * self.state.batch_size
         )
 
         for i, batch in enumerate(loader):

@@ -32,7 +32,10 @@ class CoordsGenerator:
         self.truncnorm_coordinates = truncnorm(
             (self.half_subvolume_shape - self.mus + 1) / self.sigmas,
             (self.volume_shape - self.half_subvolume_shape - self.mus),
-            self.sigmas, loc=self.mus, scale=self.sigmas)
+            self.sigmas,
+            loc=self.mus,
+            scale=self.sigmas,
+        )
 
     def _generator(self):
         xyz = np.round(self.truncnorm_coordinates.rvs(size=(1, 3))[0]).astype(
