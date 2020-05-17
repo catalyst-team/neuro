@@ -79,12 +79,8 @@ class Experiment(ConfigExperiment):
         datasets = collections.OrderedDict()
         open_fn = ReaderCompose(
             readers=[
-                NiftiReader_Image(
-                    input_key="images", output_key="images", coords="coords"
-                ),
-                NiftiReader_Mask(
-                    input_key="labels", output_key="labels", coords="coords"
-                ),
+                NiftiReader_Image(input_key="images", output_key="images"),
+                NiftiReader_Mask(input_key="labels", output_key="labels"),
             ]
         )
 
