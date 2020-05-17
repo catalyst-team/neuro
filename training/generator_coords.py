@@ -3,6 +3,12 @@ from scipy.stats import truncnorm
 
 
 class CoordsGenerator:
+    """
+    Args:
+        Generation random coordinates
+
+    """
+
     def __init__(self, list_shape=None, list_sub_shape=None):
         """
         Args:
