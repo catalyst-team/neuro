@@ -46,10 +46,31 @@ class CoordsGenerator:
         xyz_coords = np.vstack((xyz_start, xyz_end)).T
         return xyz_coords
 
-    def get_coordinates(self, n_samples):
+    def _generate_centered_nonoverlap_1d_grid(self):
+        """
+        Generates a centered nonoverlap grid.
+        Grid will not cover the whole volume if the multiplier
+        of the volume shape is not equal to subvolume shape.
+
+        Args:
+            length (int): volume side length
+            step (int): subvolume side length
+        """
+        step = self.subvolume_shape[0]
+        length = self.volume_shape[0]
+        return [
+            (c, c + step)
+            for c in range((length % step) // 2, length - step + 1, step)
+        ]
+
+    def get_coordinates(self, mode="train", n_samples=100):
         """
         Args:
             n_samples: numbers of subsamples
+            mode: mode ot training
         """
-        coord = [self._generator() for k in range(n_samples)]
+        if mode == "train":
+            coord = [self._generator() for _ in range(n_samples)]
+        else:
+            coord = self.generate_centered_nonoverlap_1d_grid()
         return coord

@@ -71,9 +71,7 @@ class NiftiReader_Mask(ReaderSpec):
             np.ndarray: Image
         """
         image_name = str(element[self.input_key])
-        with open(
-            "/home/Bekovmi/neuro/presets/label_protocol_unique.txt", "r"
-        ) as f:
+        with open("./presets/label_protocol_unique.txt", "r") as f:
             t = f.read()
 
         labels = [int(x) for x in t.split(",")]
