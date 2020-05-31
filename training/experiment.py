@@ -53,6 +53,7 @@ class Experiment(ConfigExperiment):
         in_csv_valid: str = None,
         in_csv_infer: str = None,
         n_samples: int = 100,
+        max_batch_size: int = 3,
     ):
         """
         Args:
@@ -94,7 +95,7 @@ class Experiment(ConfigExperiment):
                         input_key="images",
                         output_key="labels",
                     ),
-                    "collate_fn": CollateGeneratorFn(),
+                    "collate_fn": CollateGeneratorFn(max_batch_size),
                 }
 
         return datasets
