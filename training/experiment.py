@@ -1,13 +1,14 @@
-import collections
+from typing import List
 
+from brain_dataset import BrainDataset
+from Collate_generator import CollateGeneratorFn
 from reader import NiftiReader_Image, NiftiReader_Mask
 
 import torch
-from torch import nn
 from torchvision import transforms
 
 from catalyst.contrib.utils.pandas import read_csv_data
-from catalyst.data import Augmentor, ListDataset, ReaderCompose
+from catalyst.data import Augmentor, ReaderCompose
 from catalyst.dl import ConfigExperiment
 
 
@@ -17,19 +18,6 @@ class Experiment(ConfigExperiment):
         stage (str)
         mode (str)
     """
-
-    def _postprocess_model_for_stage(self, stage: str, model: nn.Module):
-        model_ = model
-        if isinstance(model, torch.nn.DataParallel):
-            model_ = model_.module
-
-        # if stage in ["debug", "stage1"]:
-        #     for param in model_.encoder.parameters():
-        #         param.requires_grad = False
-        # elif stage == "stage2":
-        #     for param in model_.encoder.parameters():
-        #         param.requires_grad = True
-        return model_
 
     def get_transforms(self, stage: str = None, mode: str = None):
         """
@@ -58,13 +46,19 @@ class Experiment(ConfigExperiment):
 
     def get_datasets(
         self,
+        subvolume_shape: List[int],
+        volume_shape: List[int],
         stage: str,
         in_csv_train: str = None,
         in_csv_valid: str = None,
         in_csv_infer: str = None,
+        n_samples: int = 100,
+        max_batch_size: int = 3,
     ):
         """
         Args:
+            subvolume_shape: dimention of subvolume
+            volume_shape: dimention of volume
             stage (str)
             in_csv_train (str)
             in_csv_valid (str)
@@ -76,7 +70,7 @@ class Experiment(ConfigExperiment):
             in_csv_infer=in_csv_infer,
         )
 
-        datasets = collections.OrderedDict()
+        datasets = {}
         open_fn = ReaderCompose(
             readers=[
                 NiftiReader_Image(input_key="images", output_key="images"),
@@ -86,10 +80,22 @@ class Experiment(ConfigExperiment):
 
         for mode, source in zip(("train", "valid"), (df_train, df_valid)):
             if source is not None and len(source) > 0:
-                datasets[mode] = ListDataset(
-                    list_data=source,
-                    open_fn=open_fn,
-                    dict_transform=self.get_transforms(stage=stage, mode=mode),
-                )
+
+                datasets[mode] = {
+                    "dataset": BrainDataset(
+                        list_data=source,
+                        list_shape=volume_shape,
+                        list_sub_shape=subvolume_shape,
+                        open_fn=open_fn,
+                        dict_transform=self.get_transforms(
+                            stage=stage, mode=mode
+                        ),
+                        mode=mode,
+                        n_samples=n_samples,
+                        input_key="images",
+                        output_key="labels",
+                    ),
+                    "collate_fn": CollateGeneratorFn(max_batch_size),
+                }
 
         return datasets

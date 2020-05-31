@@ -9,38 +9,41 @@ class CoordsGenerator:
 
     """
 
-    def __init__(self, list_shape=None, list_sub_shape=None):
+    def __init__(
+        self, list_shape=None, list_sub_shape=None, mus=None, sigmas=None
+    ):
         """
         Args:
             list_shape
             list_sub_shape
+            mus
+            sigmas
         """
         self.volume_shape = np.array(list_shape)
         self.subvolume_shape = np.array(list_sub_shape)
 
         self.half_subvolume_shape = self.subvolume_shape // 2
-
-        self.mus = np.array(
-            [
-                self.volume_shape[0] // 2,
-                self.volume_shape[0] // 2,
-                self.volume_shape[0] // 2,
-            ]
-        )
-        self.sigmas = np.array(
-            [
-                self.volume_shape[0] // 4,
-                self.volume_shape[0] // 4,
-                self.volume_shape[0] // 4,
-            ]
-        )
-
+        if mus is None:
+            mus = np.array(
+                [
+                    self.volume_shape[0] // 2,
+                    self.volume_shape[0] // 2,
+                    self.volume_shape[0] // 2,
+                ]
+            )
+        if sigmas is None:
+            sigmas = np.array(
+                [
+                    self.volume_shape[0] // 4,
+                    self.volume_shape[0] // 4,
+                    self.volume_shape[0] // 4,
+                ]
+            )
         self.truncnorm_coordinates = truncnorm(
-            (self.half_subvolume_shape - self.mus + 1) / self.sigmas,
-            (self.volume_shape - self.half_subvolume_shape - self.mus),
-            self.sigmas,
-            loc=self.mus,
-            scale=self.sigmas,
+            (self.half_subvolume_shape - mus + 1) / sigmas,
+            (self.volume_shape - self.half_subvolume_shape - mus) / sigmas,
+            loc=mus,
+            scale=sigmas,
         )
 
     def _generator(self):
@@ -52,7 +55,7 @@ class CoordsGenerator:
         xyz_coords = np.vstack((xyz_start, xyz_end)).T
         return xyz_coords
 
-    def _generate_centered_nonoverlap_1d_grid(self):
+    def __generate_centered_nonoverlap_1d_grid(self):
         """
         Generates a centered nonoverlap grid.
         Grid will not cover the whole volume if the multiplier
@@ -69,6 +72,12 @@ class CoordsGenerator:
             for c in range((length % step) // 2, length - step + 1, step)
         ]
 
+    def _generate_centered_nonoverlap_1d_grid(self):
+        z = self.__generate_centered_nonoverlap_1d_grid()
+        y = self.__generate_centered_nonoverlap_1d_grid()
+        x = self.__generate_centered_nonoverlap_1d_grid()
+        return np.array([[i, j, l] for i in z for j in y for l in x])
+
     def get_coordinates(self, mode="train", n_samples=100):
         """
         Args:
@@ -78,5 +87,5 @@ class CoordsGenerator:
         if mode == "train":
             coord = [self._generator() for _ in range(n_samples)]
         else:
-            coord = self.generate_centered_nonoverlap_1d_grid()
+            coord = self._generate_centered_nonoverlap_1d_grid()
         return coord
