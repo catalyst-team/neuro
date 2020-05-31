@@ -1,5 +1,5 @@
-download-gdrive 1cD0euGOhuOm8w-XXa7b4wQeZ_RfkmxN4 brain_data.zip
+download-gdrive 1M1yYoFU-XlbrP07O01ZKOeP1gZCAl6pd brain_data.zip
 mkdir -p data/Mindbonggle_101
 unzip brain_data.zip &>/dev/null
-mv brain_data/* data/Mindbonggle_101
+mv *volumes data/Mindbonggle_101
 rm brain_data.zip

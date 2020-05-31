@@ -20,27 +20,25 @@ class CoordsGenerator:
 
         self.half_subvolume_shape = self.subvolume_shape // 2
 
-        self.mus = np.array(
+        mus = np.array(
             [
                 self.volume_shape[0] // 2,
                 self.volume_shape[0] // 2,
                 self.volume_shape[0] // 2,
             ]
         )
-        self.sigmas = np.array(
+        sigmas = np.array(
             [
                 self.volume_shape[0] // 4,
                 self.volume_shape[0] // 4,
                 self.volume_shape[0] // 4,
             ]
         )
-
         self.truncnorm_coordinates = truncnorm(
-            (self.half_subvolume_shape - self.mus + 1) / self.sigmas,
-            (self.volume_shape - self.half_subvolume_shape - self.mus),
-            self.sigmas,
-            loc=self.mus,
-            scale=self.sigmas,
+            (self.half_subvolume_shape - mus + 1) / sigmas,
+            (self.volume_shape - self.half_subvolume_shape - mus) / sigmas,
+            loc=mus,
+            scale=sigmas,
         )
 
     def _generator(self):

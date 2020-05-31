@@ -22,14 +22,14 @@ def find_sample(path):
             for train in os.listdir(person_folder):
                 if train.startswith("."):
                     continue
-                if train == "t1weighted.nii":
+                if train == "t1weighted.nii.gz":
                     labels_data["images"].append(
-                        os.path.join(person_folder, "t1weighted.nii")
+                        os.path.join(person_folder, "t1weighted.nii.gz")
                     )
-                if train == "labels.DKT31.manual+aseg.nii":
+                if train == "labels.DKT31.manual+aseg.nii.gz":
                     labels_data["labels"].append(
                         os.path.join(
-                            person_folder, "labels.DKT31.manual+aseg.nii"
+                            person_folder, "labels.DKT31.manual+aseg.nii.gz"
                         )
                     )
                     print(t)
