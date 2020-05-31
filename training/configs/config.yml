@@ -27,7 +27,7 @@ stages:
     in_csv_train: "./data/dataset_train.csv"
     in_csv_valid: "./data/dataset_valid.csv"
     in_csv_infer: "./data/dataset_infer.csv"
-    n_samples: 100
+    n_samples: 3
     subvolume_shape: [64, 64, 64]
     volume_shape: [256, 256, 256]
 

@@ -83,8 +83,8 @@ class Experiment(ConfigExperiment):
                 datasets[mode] = {
                     "dataset": BrainDataset(
                         list_data=source,
-                        list_shape=subvolume_shape,
-                        list_sub_shape=volume_shape,
+                        list_shape=volume_shape,
+                        list_sub_shape=subvolume_shape,
                         open_fn=open_fn,
                         dict_transform=self.get_transforms(
                             stage=stage, mode=mode
@@ -94,7 +94,7 @@ class Experiment(ConfigExperiment):
                         input_key="images",
                         output_key="labels",
                     ),
-                    "collate_fn": CollateGeneratorFn("images", "labels"),
+                    "collate_fn": CollateGeneratorFn(),
                 }
 
         return datasets

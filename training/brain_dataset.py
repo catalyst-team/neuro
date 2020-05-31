@@ -4,7 +4,6 @@ from pathlib import Path
 from generator_coords import CoordsGenerator
 import numpy as np
 
-import torch
 from torch.utils.data import Dataset
 
 _Path = Union[str, Path]
@@ -49,6 +48,7 @@ class BrainDataset(Dataset):
         )
         self.input_key = input_key
         self.output_key = output_key
+        self.subvolume_shape = np.array(list_sub_shape)
 
     def __len__(self) -> int:
         """
@@ -57,7 +57,7 @@ class BrainDataset(Dataset):
         """
         return len(self.data)
 
-    def _getitem__(self, index: int) -> Any:
+    def __getitem__(self, index: int) -> Any:
         """Gets element of the dataset.
         Args:
             index (int): index of the element in the dataset
@@ -66,11 +66,8 @@ class BrainDataset(Dataset):
         """
         item = self.data[index]
         dict_ = self.open_fn(item)
-        coords = self.generator.get_coordinates(self.n_samples, self.mode)
-        list_image = [
-            self.dict_transform(self.__crop__(dict_, coord))
-            for coord in coords
-        ]
+        coords = self.generator.get_coordinates(mode=self.mode, n_samples=self.n_samples)
+        list_image = [self.__crop__(dict_, coord) for coord in coords]
         return list_image
 
     def __crop__(self, dict_, coords):
@@ -83,34 +80,34 @@ class BrainDataset(Dataset):
         Returns:
             crop images
         """
+        output = {}
         for key, _ in dict_.items():
             if key == self.input_key:
-                x = np.zeros(
+
+                x = np.zeros([
                     1,
                     self.subvolume_shape[0],
                     self.subvolume_shape[1],
-                    self.subvolume_shape[2],
+                    self.subvolume_shape[2]]
                 )
-
                 x[
                     0,
                     : self.subvolume_shape[0],
                     : self.subvolume_shape[1],
                     : self.subvolume_shape[2],
                 ] = dict_[key][
-                    0,
                     coords[0][0] : coords[0][1],
                     coords[1][0] : coords[1][1],
                     coords[2][0] : coords[2][1],
                 ]
-                dict_[key] = x
+                output[key] = x
             elif key == self.output_key:
-                y = torch.zeros(
+                y = np.zeros([
                     1,
                     106,
                     self.subvolume_shape[0],
                     self.subvolume_shape[1],
-                    self.subvolume_shape[2],
+                    self.subvolume_shape[2]]
                 )
                 y[
                     0,
@@ -119,11 +116,10 @@ class BrainDataset(Dataset):
                     : self.subvolume_shape[1],
                     : self.subvolume_shape[2],
                 ] = dict_[key][
-                    0,
                     :,
                     coords[0][0] : coords[0][1],
                     coords[1][0] : coords[1][1],
                     coords[2][0] : coords[2][1],
                 ]
-                dict_[key] = y
-        return dict_
+                output[key] = y
+        return self.dict_transform(output)
