@@ -66,7 +66,9 @@ class BrainDataset(Dataset):
         """
         item = self.data[index]
         dict_ = self.open_fn(item)
-        coords = self.generator.get_coordinates(mode=self.mode, n_samples=self.n_samples)
+        coords = self.generator.get_coordinates(
+            mode=self.mode, n_samples=self.n_samples
+        )
         list_image = [self.__crop__(dict_, coord) for coord in coords]
         return list_image
 
@@ -84,11 +86,13 @@ class BrainDataset(Dataset):
         for key, _ in dict_.items():
             if key == self.input_key:
 
-                x = np.zeros([
-                    1,
-                    self.subvolume_shape[0],
-                    self.subvolume_shape[1],
-                    self.subvolume_shape[2]]
+                x = np.zeros(
+                    [
+                        1,
+                        self.subvolume_shape[0],
+                        self.subvolume_shape[1],
+                        self.subvolume_shape[2],
+                    ]
                 )
                 x[
                     0,
@@ -102,12 +106,14 @@ class BrainDataset(Dataset):
                 ]
                 output[key] = x
             elif key == self.output_key:
-                y = np.zeros([
-                    1,
-                    106,
-                    self.subvolume_shape[0],
-                    self.subvolume_shape[1],
-                    self.subvolume_shape[2]]
+                y = np.zeros(
+                    [
+                        1,
+                        106,
+                        self.subvolume_shape[0],
+                        self.subvolume_shape[1],
+                        self.subvolume_shape[2],
+                    ]
                 )
                 y[
                     0,
