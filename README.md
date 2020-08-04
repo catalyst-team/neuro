@@ -1,5 +1,6 @@
 <div align="center">
 
+
 [![Catalyst logo](https://raw.githubusercontent.com/catalyst-team/catalyst-pics/master/pics/catalyst_logo.png)](https://github.com/catalyst-team/catalyst)
 
 **Accelerated DL R&D**
@@ -58,7 +59,7 @@ You can reproduce MeshNet demo with 4 simple steps
     ```
 - Prepare data
     ```bash
-    python neuro/scripts/prepare_data.py ./data/Mindbonggle_101 100
+    python neuro/scripts/prepare_data.py ./data/Mindboggle_101
     ```
 - Start training (requires 64GB RAM due to data preprocessing)
     ```bash
