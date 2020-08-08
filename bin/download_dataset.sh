@@ -1,5 +1,7 @@
-download-gdrive 1M1yYoFU-XlbrP07O01ZKOeP1gZCAl6pd brain_data.zip
-mkdir -p data/Mindbonggle_101
+download-gdrive 1cD0euGOhuOm8w-XXa7b4wQeZ_RfkmxN4 brain_data.zip
+mkdir -p data/Mindboggle_101
 unzip brain_data.zip &>/dev/null
-mv *volumes data/Mindbonggle_101
+find . -name '*volumes*' | xargs -I '{}' mv {} data/Mindboggle_101/
+find data/Mindboggle_101 -name '*.tar.gz'| xargs -i tar zxvf {} -C data/Mindboggle_101
+find data/Mindboggle_101 -name '*.tar.gz'| xargs -i rm {}
 rm brain_data.zip
