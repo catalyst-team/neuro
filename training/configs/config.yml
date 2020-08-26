@@ -22,7 +22,7 @@ stages:
     minimize_metric: False
 
   data_params:
-    num_workers: 0
+    num_workers: 2
     batch_size: 1
     in_csv_train: "./data/dataset_train.csv"
     in_csv_valid: "./data/dataset_valid.csv"
@@ -45,8 +45,10 @@ stages:
       weight_decay: 0.0001
 
     scheduler_params:
-      scheduler: CosineAnnealingLR
-      T_max: 30
+      scheduler: CosineAnnealingWarmRestarts
+      T_0: 30
+      T_mult: 2
+      eta_min: 1e-10
 
     callbacks_params:
       loss_dice:
@@ -61,6 +63,7 @@ stages:
       optimizer:
         callback: OptimizerCallback
         loss_key: *loss
+        accumulation_steps: 8
       scheduler:
         callback: SchedulerCallback
       saver:
