@@ -36,7 +36,6 @@ class NiftiReader_Image(ReaderSpec):
         img = nib.load(image_name)
         img = img.get_fdata(dtype=np.float32)
         img = (img - img.min()) / (img.max() - img.min())
-        img = img * 255.0
         new_img = np.zeros([256, 256, 256])
         new_img[: img.shape[0], : img.shape[1], : img.shape[2]] = img
 
