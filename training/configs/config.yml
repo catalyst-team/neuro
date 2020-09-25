@@ -10,6 +10,9 @@ runner_params:
   input_key: "images"  # Пример
   output_key: "logits"  # Пример
   input_target_key: "labels"
+  subvolume_shape: [38, 38, 38]
+  volume_shape: [256, 256, 256]
+  batch_size: 8
 
 distributed_params:  # OPTIONAL KEYWORD, параметры для distributed training и NVIDIA Apex
   rank: 0 # Rank для distributed training
@@ -17,23 +20,31 @@ distributed_params:  # OPTIONAL KEYWORD, параметры для distributed t
   syncbn: False
 
 stages:
-  state_params:
-    main_metric: &reduce_metric dice
-    minimize_metric: False
+    #state_params:
+    #stmain_metric: &reduce_metric dice
+    #stminimize_metric: False
 
   data_params:
-    num_workers: 2
-    batch_size: 1
     in_csv_train: "./data/dataset_train.csv"
     in_csv_valid: "./data/dataset_valid.csv"
     in_csv_infer: "./data/dataset_infer.csv"
-    n_samples: 100
-    max_batch_size: 3
-    subvolume_shape: [64, 64, 64]
+    max_batch_size: 8
+    subvolume_shape: [38, 38, 38]
     volume_shape: [256, 256, 256]
+    loaders_params:
+      train:
+        batch_size: 16
+        num_workers: 10
+        pin_memory: True
+      valid:
+        batch_size: 16
+        num_workers: 10
+        drop_last: True
 
   criterion_params:
-    criterion: DiceLoss
+    #criterion: DiceLoss
+    criterion: CrossEntropyLoss
+
 
   stage1:
     state_params:
@@ -51,19 +62,18 @@ stages:
       eta_min: 1e-10
 
     callbacks_params:
-      loss_dice:
+      loss_crossentropy:
         callback: CriterionCallback
         input_key: labels
         output_key: logits
-        prefix: &loss loss_dice
-      dice_metric:
-        callback: DiceCallback
-        input_key: labels
-        output_key: logits
+        prefix: &loss loss_crossentropy
+      #dice_metric:
+      #  callback: DiceCallback
+      #  input_key: labels
+      #  output_key: logits
       optimizer:
         callback: OptimizerCallback
         loss_key: *loss
-        accumulation_steps: 8
       scheduler:
         callback: SchedulerCallback
       saver:

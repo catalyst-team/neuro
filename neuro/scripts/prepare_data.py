@@ -1,7 +1,31 @@
 import argparse
 import os
+import joblib
 
 import pandas as pd
+import numpy as np
+import nibabel as nib
+import h5py
+
+
+
+def get_labels():
+    with open("./presets/label_protocol_unique.txt", "r") as f:
+        t = f.read()
+
+    labels = [int(x) for x in t.split(",")]
+
+    return labels
+
+
+def create_one_hot_voxel_labels(labels, voxel_labels, one_hot_voxel_labels_shape):
+    one_hot_voxel_labels = np.array([voxel_labels == l for l in labels])
+    one_hot_voxel_labels = np.pad(one_hot_voxel_labels, (
+        (0,one_hot_voxel_labels_shape[0] - one_hot_voxel_labels.shape[0]),
+        (0,one_hot_voxel_labels_shape[1] - one_hot_voxel_labels.shape[1]),
+        (0,one_hot_voxel_labels_shape[2] - one_hot_voxel_labels.shape[2]),
+        (0,one_hot_voxel_labels_shape[3] - one_hot_voxel_labels.shape[3])), mode='constant')
+    return one_hot_voxel_labels.astype("uint8")
 
 
 def find_sample(path):
@@ -44,7 +68,20 @@ def main(datapath):
         datapath (str): path to mri files
         n_samples (int): numbers of samples
     """
+    labels = get_labels()
     dataframe = find_sample(datapath)
+    for i, row in dataframe.iterrows():
+        voxel_labels = nib.load(row['labels']).get_fdata()
+        one_hot_voxel_labels_shape = (106, 256, 256, 256)
+        one_hot_voxel_labels = create_one_hot_voxel_labels(labels, voxel_labels, one_hot_voxel_labels_shape)
+
+        with open(row['labels'].split('.nii')[0] + '.joblib', 'wb') as f:
+            joblib.dump(one_hot_voxel_labels, f, compress=True)
+
+    dataframe['one_hot_labels'] = dataframe['labels'].apply(lambda a:
+                                                            a.split('.nii')[0]
+                                                            + '.joblib')
+
     dataframe.to_csv("./data/dataset.csv", index=False)
     dataframe.iloc[:80, :].to_csv("./data/dataset_train.csv", index=False)
     dataframe.iloc[80:100, :].to_csv("./data/dataset_valid.csv", index=False)

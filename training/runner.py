@@ -1,18 +1,19 @@
 from typing import Any, Mapping
 import logging
+import numpy as np
 
 from generator_coords import CoordsGenerator
 
 import torch
 from torch.utils.data import DataLoader
 
-from catalyst.dl.runner import Runner
+from catalyst.dl.runner import SupervisedRunner
 from catalyst.utils.tools.typing import Device, Model
 
 logger = logging.getLogger(__name__)
 
 
-class NeuroRunner(Runner):
+class NeuroRunner(SupervisedRunner):
     """
     Deep Learning Runner for different NeuroRunner.
     """
@@ -42,7 +43,7 @@ class NeuroRunner(Runner):
             subvolume_shape
             volume_shape
         """
-        super(Runner).__init__(model=model, device=device)
+        super(SupervisedRunner, self).__init__(model=model, device=device)
         self.input_key = input_key
         self.output_key = output_key
         self.target_key = input_target_key
@@ -125,17 +126,15 @@ class NeuroRunner(Runner):
                 output[key] = y
         return output
 
-    def _run_batch(self, batch: Mapping[str, Any], coords) -> None:
+    def _run_batch(self, batch: Mapping[str, Any]) -> None:
         """
         Inner method to run train step on specified data batch,
         with batch callbacks events.
         Args:
             batch (Mapping[str, Any]): dictionary with data batches
                 from DataLoader.
-            coords: random coordinates
         """
         self.state.global_step += self.state.batch_size
-        batch = self._crop_data(batch, coords)
         batch = self._batch2device(batch, self.device)
         self.state.input = batch
 
@@ -161,14 +160,14 @@ class NeuroRunner(Runner):
         )
 
         for i, batch in enumerate(loader):
-            for k, coords in enumerate(
-                self.generator.get_coordinates(self.n_samples)
-            ):
-                self.state.loader_step = i + 1 + k
-                self._run_batch(batch, coords)
-                if self.state.need_early_stop:
-                    self.state.need_early_stop = False
-                    break
-
+            self.state.loader_step = i + 1
+            #print(batch['images'].max())
+            #print(batch['labels'].max())
+            batch = [batch['images'],
+                     torch.squeeze(batch['labels']).long()]
+            self._run_batch(batch)
+            if self.state.need_early_stop:
+                self.state.need_early_stop = False
+                break
 
 __all__ = ["NeuroRunner"]
