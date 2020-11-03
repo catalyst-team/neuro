@@ -22,10 +22,10 @@ class BrainDataset(Dataset):
         list_sub_shape: List[int],
         open_fn: Callable,
         dict_transform: Callable = None,
-        mode: str = "train",
         n_samples: int = 100,
+        mode: str = "train",
         input_key: str = "images",
-        output_key: str = "labels",
+        output_key: str = "targets",
     ):
         """
         Args:
@@ -39,6 +39,7 @@ class BrainDataset(Dataset):
             dict_transform (callable): transforms to use on dict.
                 (for example normalize image, add blur, crop/resize/etc)
         """
+        self.n_samples = n_samples
         self.shared_dict = shared_dict
         self.data = list_data
         self.open_fn = open_fn
@@ -46,7 +47,6 @@ class BrainDataset(Dataset):
             list_shape=list_shape, list_sub_shape=list_sub_shape
         )
         self.mode = mode
-        self.n_samples = n_samples
         self.dict_transform = (
             dict_transform if dict_transform is not None else lambda x: x
         )
@@ -77,7 +77,6 @@ class BrainDataset(Dataset):
         start = time.time()
         coords = self.generator.get_coordinates(mode=self.mode)
         end = time.time()
-        #print("get_coords_time: ", end-start)
 
         if self.mode != 'train':
             coords = np.expand_dims(coords[index//216], 0)
@@ -87,12 +86,10 @@ class BrainDataset(Dataset):
         start = time.time()
         dict_ = self.open_fn(item)
         end = time.time()
-        #print("open_files time: ", end-start)
 
         start = time.time()
         sample_dict = self.__crop__(dict_, coords)
         end = time.time()
-        #print("open_files time: ",  end-start)
 
         return sample_dict
 
@@ -120,7 +117,6 @@ class BrainDataset(Dataset):
 
                 elif key == self.output_key:
                     output_labels_list.append(np.expand_dims(dict_[key][
-                        #:,
                         start_end[0][0] : start_end[0][1],
                         start_end[1][0] : start_end[1][1],
                         start_end[2][0] : start_end[2][1],
@@ -129,5 +125,5 @@ class BrainDataset(Dataset):
         output_images = np.concatenate(output_images_list)
         output_labels = np.concatenate(output_labels_list)
         output[self.input_key] = output_images
-        output[self.output_key] = output_labels
+        output[self.output_key] = output_labels.squeeze().astype(np.int64)
         return self.dict_transform(output)

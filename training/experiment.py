@@ -32,7 +32,7 @@ class Experiment(ConfigExperiment):
                 augment_fn=lambda x: torch.from_numpy(x).float(),
             )
             Augmentor2 = Augmentor(
-                dict_key="labels", augment_fn=lambda x: torch.from_numpy(x)
+                dict_key="targets", augment_fn=lambda x: torch.from_numpy(x)
             )
             return transforms.Compose([Augmentor1, Augmentor2])
         elif mode == "valid":
@@ -41,9 +41,10 @@ class Experiment(ConfigExperiment):
                 augment_fn=lambda x: torch.from_numpy(x).float(),
             )
             Augmentor2 = Augmentor(
-                dict_key="labels", augment_fn=lambda x: torch.from_numpy(x)
+                dict_key="targets", augment_fn=lambda x: torch.from_numpy(x)
             )
             return transforms.Compose([Augmentor1, Augmentor2])
+
 
     def get_datasets(
         self,
@@ -77,8 +78,7 @@ class Experiment(ConfigExperiment):
         open_fn = ReaderCompose(
             readers=[
                 NiftiReader_Image(input_key="images", output_key="images"),
-                NiftiReader_Mask(input_key="labels", output_key="labels"),
-                #JoblibReader(input_key="one_hot_labels", output_key="labels"),
+                NiftiReader_Mask(input_key="nii_labels", output_key="targets"),
             ]
         )
 
@@ -89,7 +89,8 @@ class Experiment(ConfigExperiment):
                     shared_dict=manager.dict(),
                     list_data=source, list_shape=volume_shape, list_sub_shape=subvolume_shape,
                     open_fn=open_fn, dict_transform=self.get_transforms(stage=stage, mode=mode),
-                    mode=mode, n_samples=n_samples, input_key="images", output_key="labels")
+                    mode=mode, n_samples=n_samples, input_key="images",
+                    output_key="targets")
                 train_random_sampler = RandomSampler(data_source=dataset,
                                                      replacement=True,
                                                      num_samples=80 * 128)
