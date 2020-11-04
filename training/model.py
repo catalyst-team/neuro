@@ -35,7 +35,7 @@ class UNet(nn.Module):
         logits = self.outc(x)
         return logits
 
-MeshNet_38_kwargs = [
+MeshNet_38_or_64_kwargs = [
     {'in_channels': -1, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
     {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
     {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
@@ -44,6 +44,18 @@ MeshNet_38_kwargs = [
     {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 8, 'stride': 1, 'dilation': 8},
     {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
     {'in_channels': 71, 'kernel_size': 1, 'out_channels': -1, 'padding': 0, 'stride': 1, 'dilation': 1}]
+
+MeshNet_68_kwargs = [
+    {'in_channels': -1, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
+    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
+    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
+    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 2, 'stride': 1, 'dilation': 2},
+    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 4, 'stride': 1, 'dilation': 4},
+    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 16, 'stride': 1, 'dilation': 16},
+    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
+    {'in_channels': 71, 'kernel_size': 1, 'out_channels': -1, 'padding': 0, 'stride': 1, 'dilation': 1}]
+
+
 
 def conv_w_bn_before_act(*args, **kwargs):
     return nn.Sequential(
@@ -57,7 +69,12 @@ def init_weights(m):
 
 
 class MeshNet(nn.Module):
-    def __init__(self, n_channels, n_classes, params=MeshNet_38_kwargs):
+    def __init__(self, n_channels, n_classes, input_size=38):
+        if input_size >=68:
+            params = MeshNet_68_kwargs
+        else:
+            params = MeshNet_38_or_64_kwargs
+
         super(MeshNet, self).__init__()
         params[0]['in_channels'] = n_channels
         params[-1]['out_channels'] = n_classes

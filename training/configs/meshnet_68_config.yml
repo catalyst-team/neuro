@@ -1,0 +1,63 @@
+model_params:
+  model: MeshNet
+  n_channels: 1
+  n_classes: 30
+  input_size: 68
+args:
+  expdir: "./training"
+  logdir: "./logs"
+
+runner_params:
+  input_key: "images"  # Пример
+  output_key: "logits"  # Пример
+  input_target_key: "labels"
+
+distributed_params:  # OPTIONAL KEYWORD, параметры для distributed training и NVIDIA Apex
+  rank: 0 # Rank для distributed training
+  opt_level: O1  # Пример для NVIDIA Apex
+  syncbn: False
+
+stages:
+  data_params:
+    in_csv_train: "./data/dataset_train.csv"
+    in_csv_valid: "./data/dataset_valid.csv"
+    in_csv_infer: "./data/dataset_infer.csv"
+    subvolume_shape: [68, 68, 68]
+    volume_shape: [256, 256, 256]
+    loaders_params:
+      train:
+        batch_size: 16
+        num_workers: 0
+        pin_memory: True
+      valid:
+        batch_size: 16
+        num_workers: 10
+        drop_last: True
+
+  criterion_params:
+    criterion: CrossEntropyLoss
+
+  stage1:
+    state_params:
+      num_epochs: 30
+
+    optimizer_params:
+      optimizer: Adam
+      lr: 0.01
+      weight_decay: 0.0001
+
+    scheduler_params:
+      scheduler: CosineAnnealingWarmRestarts
+      T_0: 30
+      T_mult: 2
+      eta_min: 1e-10
+
+    callbacks_params:
+      logger:
+        callback: TensorboardLogger
+      scheduler:
+        callback: SchedulerCallback
+      metrics:
+        callback: CustomDiceCallback
+      saver:
+        callback: CheckpointCallback
