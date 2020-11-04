@@ -1,7 +1,7 @@
 from typing import List
 
 from brain_dataset import BrainDataset
-from reader import NiftiReader_Image, NiftiReader_Mask, JoblibReader
+from reader import NiftiReader_Image, NiftiReader_Mask
 
 import torch
 from torchvision import transforms
