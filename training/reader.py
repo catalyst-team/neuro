@@ -1,5 +1,7 @@
 import nibabel as nib
 import numpy as np
+import joblib
+import time
 
 from catalyst.data import ReaderSpec
 
@@ -10,9 +12,7 @@ class NiftiReader_Image(ReaderSpec):
     from a `csv` dataset.
     """
 
-    def __init__(
-        self, input_key: str, output_key: str, rootpath: str = None,
-    ):
+    def __init__(self, input_key: str, output_key: str, rootpath: str = None,):
         """
         Args:
             input_key (str): key to use from annotation dict
@@ -32,15 +32,16 @@ class NiftiReader_Image(ReaderSpec):
         Returns:
             np.ndarray: Image
         """
+        start = time.time()
         image_name = str(element[self.input_key])
         img = nib.load(image_name)
         img = img.get_fdata(dtype=np.float32)
         img = (img - img.min()) / (img.max() - img.min())
-        img = img * 255.0
         new_img = np.zeros([256, 256, 256])
         new_img[: img.shape[0], : img.shape[1], : img.shape[2]] = img
 
         output = {self.output_key: new_img.astype(np.float32)}
+        end = time.time()
         return output
 
 
@@ -70,20 +71,10 @@ class NiftiReader_Mask(ReaderSpec):
         Returns:
             np.ndarray: Image
         """
+        start = time.time()
         image_name = str(element[self.input_key])
-        with open("./presets/label_protocol_unique.txt", "r") as f:
-            t = f.read()
-
-        labels = [int(x) for x in t.split(",")]
         img = nib.load(image_name, mmap=False)
         img = img.get_fdata(dtype=np.float32)
-        segmentation = np.zeros([len(labels), 256, 256, 256])
-        k = 0
-        for l in labels:
-            segmentation[k, : img.shape[0], : img.shape[1], : img.shape[2]] = (
-                img == l
-            )
-            k += 1
-        data = segmentation.astype("uint8")
-        output = {self.output_key: data}
+        output = {self.output_key: img}
         return output
+

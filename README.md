@@ -1,5 +1,6 @@
 <div align="center">
 
+
 [![Catalyst logo](https://raw.githubusercontent.com/catalyst-team/catalyst-pics/master/pics/catalyst_logo.png)](https://github.com/catalyst-team/catalyst)
 
 **Accelerated DL R&D**
@@ -50,17 +51,25 @@ Developed in a partnership with
 You can reproduce MeshNet demo with 4 simple steps
 - Install requirements
     ```bash
+    conda env create -f neuro_conda.yml
+    conda activate neuro
     pip install -r ./requirements/requirements.txt
     ```
-- Download data via
+- Download data. You need to have an account on the open science framework.
     ```bash
-    bash bin/download_dataset.sh
+    mkdir Mindboggle_data
+    osf -p 9ahyp clone Mindboggle_data
+    cp -r Mindboggle_data/osfstorage/Mindboggle101_volumes/
+    ../data/Mindboggle_data/
+    find data/Mindboggle_101 -name '*.tar.gz'| xargs -i tar zxvf {} -C
+    data/Mindboggle_101
+    find data/Mindboggle_101 -name '*.tar.gz'| xargs -i rm {}
     ```
 - Prepare data
     ```bash
-    python neuro/scripts/prepare_data.py ./data/Mindbonggle_101 100
+    python neuro/scripts/prepare_data.py ./data/Mindboggle_101 10
     ```
-- Start training (requires 64GB RAM due to data preprocessing)
+- Start training
     ```bash
     # for single GPU usage
     CUDA_VISIBLE_DEVICES=0 USE_APEX=0 catalyst-dl run --config=./training/configs/config.yml  --verbose
