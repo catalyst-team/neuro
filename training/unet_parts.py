@@ -17,7 +17,6 @@ class DoubleConv(nn.Module):
             nn.Conv3d(in_channels, mid_channels, kernel_size=3, padding=1),
             nn.BatchNorm3d(mid_channels),
             nn.ReLU(inplace=True),
-
             nn.Conv3d(mid_channels, out_channels, kernel_size=3, padding=1),
             nn.BatchNorm3d(out_channels),
             nn.ReLU(inplace=True),
@@ -48,7 +47,9 @@ class Down(nn.Module):
 class Up(nn.Module):
     """Upscaling then double conv"""
 
-    def __init__(self, in_channels, out_channels, mid_channels=None, bilinear=True):
+    def __init__(
+        self, in_channels, out_channels, mid_channels=None, bilinear=True
+    ):
         """
         Docs.
         """
@@ -62,7 +63,7 @@ class Up(nn.Module):
             )
             if mid_channels:
                 self.conv = DoubleConv(
-                    in_channels,  out_channels, mid_channels=mid_channels,
+                    in_channels, out_channels, mid_channels=mid_channels,
                 )
             else:
                 self.conv = DoubleConv(
