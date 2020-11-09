@@ -1,10 +1,10 @@
 from typing import Any, Callable, List, Union
+from multiprocessing import Manager
 from pathlib import Path
 import time
 
 from generator_coords import CoordsGenerator
 import numpy as np
-from multiprocessing import Manager
 
 from torch.utils.data import Dataset
 
@@ -59,7 +59,7 @@ class BrainDataset(Dataset):
         Returns:
             int: length of the dataset
         """
-        if self.mode != 'train':
+        if self.mode != "train":
             # 216 is a hardcode for all the different nonoverlapping coords for
             # a 38x38x38 cross_section from 256x256x256
             return len(self.data) * 216
@@ -78,8 +78,8 @@ class BrainDataset(Dataset):
         coords = self.generator.get_coordinates(mode=self.mode)
         end = time.time()
 
-        if self.mode != 'train':
-            coords = np.expand_dims(coords[index//216], 0)
+        if self.mode != "train":
+            coords = np.expand_dims(coords[index // 216], 0)
             item = self.data[index // 216]
         else:
             item = self.data[index]
@@ -109,18 +109,28 @@ class BrainDataset(Dataset):
         for start_end in coords:
             for key, _ in dict_.items():
                 if key == self.input_key:
-                    output_images_list.append(np.expand_dims(dict_[key][
-                        start_end[0][0] : start_end[0][1],
-                        start_end[1][0] : start_end[1][1],
-                        start_end[2][0] : start_end[2][1],
-                    ], 0))
+                    output_images_list.append(
+                        np.expand_dims(
+                            dict_[key][
+                                start_end[0][0] : start_end[0][1],
+                                start_end[1][0] : start_end[1][1],
+                                start_end[2][0] : start_end[2][1],
+                            ],
+                            0,
+                        )
+                    )
 
                 elif key == self.output_key:
-                    output_labels_list.append(np.expand_dims(dict_[key][
-                        start_end[0][0] : start_end[0][1],
-                        start_end[1][0] : start_end[1][1],
-                        start_end[2][0] : start_end[2][1],
-                    ], 0))
+                    output_labels_list.append(
+                        np.expand_dims(
+                            dict_[key][
+                                start_end[0][0] : start_end[0][1],
+                                start_end[1][0] : start_end[1][1],
+                                start_end[2][0] : start_end[2][1],
+                            ],
+                            0,
+                        )
+                    )
 
         output_images = np.concatenate(output_images_list)
         output_labels = np.concatenate(output_labels_list)

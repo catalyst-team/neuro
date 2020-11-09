@@ -1,12 +1,11 @@
 import argparse
 import os
-import joblib
 
-import pandas as pd
-import numpy as np
-import nibabel as nib
 import h5py
-
+import joblib
+import nibabel as nib
+import numpy as np
+import pandas as pd
 
 
 def get_labels():
@@ -18,13 +17,20 @@ def get_labels():
     return labels
 
 
-def create_one_hot_voxel_labels(labels, voxel_labels, one_hot_voxel_labels_shape):
+def create_one_hot_voxel_labels(
+    labels, voxel_labels, one_hot_voxel_labels_shape
+):
     one_hot_voxel_labels = np.array([voxel_labels == l for l in labels])
-    one_hot_voxel_labels = np.pad(one_hot_voxel_labels, (
-        (0,one_hot_voxel_labels_shape[0] - one_hot_voxel_labels.shape[0]),
-        (0,one_hot_voxel_labels_shape[1] - one_hot_voxel_labels.shape[1]),
-        (0,one_hot_voxel_labels_shape[2] - one_hot_voxel_labels.shape[2]),
-        (0,one_hot_voxel_labels_shape[3] - one_hot_voxel_labels.shape[3])), mode='constant')
+    one_hot_voxel_labels = np.pad(
+        one_hot_voxel_labels,
+        (
+            (0, one_hot_voxel_labels_shape[0] - one_hot_voxel_labels.shape[0]),
+            (0, one_hot_voxel_labels_shape[1] - one_hot_voxel_labels.shape[1]),
+            (0, one_hot_voxel_labels_shape[2] - one_hot_voxel_labels.shape[2]),
+            (0, one_hot_voxel_labels_shape[3] - one_hot_voxel_labels.shape[3]),
+        ),
+        mode="constant",
+    )
     return one_hot_voxel_labels.astype("uint8")
 
 
@@ -72,7 +78,7 @@ def main(datapath, n_labels):
     labels.extend([*range(1005, 1032)])
     labels.extend([1035, 1036])
     print(len(labels))
-    #labels = [i for i in range(1001, 1004)] + [i for i in range(1005, 1036)] + \
+    # labels = [i for i in range(1001, 1004)] + [i for i in range(1005, 1036)] + \
     #         [i for i in range(2001, 2004)] + [i for i in range(2005, 2036)] + \
     #         [10, 49, 11, 50, 12, 51, 13, 52, 17, 53, 18, 54, 26, 58, 28, 60,
     #          2, 41, 4, 5, 43, 44, 14, 15, 24, 16, 7, 46, 8, 47, 251, 252, 253,
@@ -81,33 +87,36 @@ def main(datapath, n_labels):
     dataframe = find_sample(datapath)
     df_list = []
     for i, row in dataframe.iterrows():
-        voxel_labels = nib.load(row['labels']).get_fdata()
+        voxel_labels = nib.load(row["labels"]).get_fdata()
         unique, counts = np.unique(voxel_labels, return_counts=True)
-        temp_df = pd.DataFrame({'labels': unique, 'counts': counts}).T
-        new_df  = pd.DataFrame(temp_df.values[1:], columns=temp_df.iloc[0])
+        temp_df = pd.DataFrame({"labels": unique, "counts": counts}).T
+        new_df = pd.DataFrame(temp_df.values[1:], columns=temp_df.iloc[0])
         df_list.append(new_df)
 
     full_value_counts = pd.concat(df_list)
-    #labels = [l for l in full_value_counts.sum().nlargest(n_labels).index.tolist() if l != 0]
+    # labels = [l for l in full_value_counts.sum().nlargest(n_labels).index.tolist() if l != 0]
 
     for i, row in dataframe.iterrows():
-        voxel_labels = nib.load(row['labels']).get_fdata()
+        voxel_labels = nib.load(row["labels"]).get_fdata()
         new_img = np.zeros([256, 256, 256])
-        new_img[: voxel_labels.shape[0], : voxel_labels.shape[1], :
-                voxel_labels.shape[2]] = voxel_labels
+        new_img[
+            : voxel_labels.shape[0],
+            : voxel_labels.shape[1],
+            : voxel_labels.shape[2],
+        ] = voxel_labels
         segmentation = np.zeros([256, 256, 256])
 
         for i, l in enumerate(labels):
             mask = np.equal(l, new_img)
             segmentation[mask] = i
         nib_seg = nib.Nifti1Image(segmentation, np.eye(4))
-        nib_seg.to_filename(row['labels'].split('.nii')[0] + '_labels' + '.nii.gz')
+        nib_seg.to_filename(
+            row["labels"].split(".nii")[0] + "_labels" + ".nii.gz"
+        )
 
-
-    dataframe['nii_labels'] = dataframe['labels'].apply(lambda a:
-                                                            a.split('.nii')[0]
-                                                            + '_labels' +
-                                                            '.nii.gz')
+    dataframe["nii_labels"] = dataframe["labels"].apply(
+        lambda a: a.split(".nii")[0] + "_labels" + ".nii.gz"
+    )
 
     dataframe.to_csv("./data/dataset.csv", index=False)
     dataframe.iloc[:80, :].to_csv("./data/dataset_train.csv", index=False)

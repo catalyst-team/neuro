@@ -1,7 +1,8 @@
+import time
+
+import joblib
 import nibabel as nib
 import numpy as np
-import joblib
-import time
 
 from catalyst.data import ReaderSpec
 
@@ -12,7 +13,9 @@ class NiftiReader_Image(ReaderSpec):
     from a `csv` dataset.
     """
 
-    def __init__(self, input_key: str, output_key: str, rootpath: str = None,):
+    def __init__(
+        self, input_key: str, output_key: str, rootpath: str = None,
+    ):
         """
         Args:
             input_key (str): key to use from annotation dict
@@ -77,4 +80,3 @@ class NiftiReader_Mask(ReaderSpec):
         img = img.get_fdata(dtype=np.float32)
         output = {self.output_key: img}
         return output
-

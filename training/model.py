@@ -35,33 +35,149 @@ class UNet(nn.Module):
         logits = self.outc(x)
         return logits
 
+
 MeshNet_38_or_64_kwargs = [
-    {'in_channels': -1, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
-    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
-    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
-    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 2, 'stride': 1, 'dilation': 2},
-    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 4, 'stride': 1, 'dilation': 4},
-    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 8, 'stride': 1, 'dilation': 8},
-    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
-    {'in_channels': 71, 'kernel_size': 1, 'out_channels': -1, 'padding': 0, 'stride': 1, 'dilation': 1}]
+    {
+        "in_channels": -1,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 1,
+        "stride": 1,
+        "dilation": 1,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 1,
+        "stride": 1,
+        "dilation": 1,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 1,
+        "stride": 1,
+        "dilation": 1,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 2,
+        "stride": 1,
+        "dilation": 2,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 4,
+        "stride": 1,
+        "dilation": 4,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 8,
+        "stride": 1,
+        "dilation": 8,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 1,
+        "stride": 1,
+        "dilation": 1,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 1,
+        "out_channels": -1,
+        "padding": 0,
+        "stride": 1,
+        "dilation": 1,
+    },
+]
 
 MeshNet_68_kwargs = [
-    {'in_channels': -1, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
-    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
-    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
-    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 2, 'stride': 1, 'dilation': 2},
-    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 4, 'stride': 1, 'dilation': 4},
-    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 16, 'stride': 1, 'dilation': 16},
-    {'in_channels': 71, 'kernel_size': 3, 'out_channels': 71, 'padding': 1, 'stride': 1, 'dilation': 1},
-    {'in_channels': 71, 'kernel_size': 1, 'out_channels': -1, 'padding': 0, 'stride': 1, 'dilation': 1}]
-
+    {
+        "in_channels": -1,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 1,
+        "stride": 1,
+        "dilation": 1,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 1,
+        "stride": 1,
+        "dilation": 1,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 1,
+        "stride": 1,
+        "dilation": 1,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 2,
+        "stride": 1,
+        "dilation": 2,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 4,
+        "stride": 1,
+        "dilation": 4,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 16,
+        "stride": 1,
+        "dilation": 16,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 1,
+        "stride": 1,
+        "dilation": 1,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 1,
+        "out_channels": -1,
+        "padding": 0,
+        "stride": 1,
+        "dilation": 1,
+    },
+]
 
 
 def conv_w_bn_before_act(*args, **kwargs):
     return nn.Sequential(
         nn.Conv3d(*args, **kwargs),
-        nn.BatchNorm3d(kwargs['out_channels']),
-        nn.ReLU(inplace=True))
+        nn.BatchNorm3d(kwargs["out_channels"]),
+        nn.ReLU(inplace=True),
+    )
+
 
 def init_weights(m):
     if type(m) == nn.Linear:
@@ -70,15 +186,18 @@ def init_weights(m):
 
 class MeshNet(nn.Module):
     def __init__(self, n_channels, n_classes, input_size=38):
-        if input_size >=68:
+        if input_size >= 68:
             params = MeshNet_68_kwargs
         else:
             params = MeshNet_38_or_64_kwargs
 
         super(MeshNet, self).__init__()
-        params[0]['in_channels'] = n_channels
-        params[-1]['out_channels'] = n_classes
-        layers = [conv_w_bn_before_act(**block_kwargs) for block_kwargs in params[:-1]]
+        params[0]["in_channels"] = n_channels
+        params[-1]["out_channels"] = n_classes
+        layers = [
+            conv_w_bn_before_act(**block_kwargs)
+            for block_kwargs in params[:-1]
+        ]
         layers.append(nn.Conv3d(**params[-1]))
         self.model = nn.Sequential(*layers)
         self.model.apply(init_weights)
