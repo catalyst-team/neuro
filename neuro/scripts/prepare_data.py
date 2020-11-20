@@ -1,37 +1,9 @@
 import argparse
 import os
 
-import h5py
-import joblib
-import nibabel as nib
-import numpy as np
 import pandas as pd
-
-
-def get_labels():
-    with open("./presets/label_protocol_unique.txt", "r") as f:
-        t = f.read()
-
-    labels = [int(x) for x in t.split(",")]
-
-    return labels
-
-
-def create_one_hot_voxel_labels(
-    labels, voxel_labels, one_hot_voxel_labels_shape
-):
-    one_hot_voxel_labels = np.array([voxel_labels == l for l in labels])
-    one_hot_voxel_labels = np.pad(
-        one_hot_voxel_labels,
-        (
-            (0, one_hot_voxel_labels_shape[0] - one_hot_voxel_labels.shape[0]),
-            (0, one_hot_voxel_labels_shape[1] - one_hot_voxel_labels.shape[1]),
-            (0, one_hot_voxel_labels_shape[2] - one_hot_voxel_labels.shape[2]),
-            (0, one_hot_voxel_labels_shape[3] - one_hot_voxel_labels.shape[3]),
-        ),
-        mode="constant",
-    )
-    return one_hot_voxel_labels.astype("uint8")
+import numpy as np
+import nibabel as nib
 
 
 def find_sample(path):
@@ -74,15 +46,21 @@ def main(datapath, n_labels):
         datapath (str): path to mri files
         n_labels (int): number of labels generated (the n most frequent labels)
     """
+    # Labels are from https://mindboggle.readthedocs.io/en/latest/labels.html
+    # DKT protocol minus removed labels
     labels = [1002, 1003]
     labels.extend([*range(1005, 1032)])
     labels.extend([1035, 1036])
-    print(len(labels))
-    # labels = [i for i in range(1001, 1004)] + [i for i in range(1005, 1036)] + \
-    #         [i for i in range(2001, 2004)] + [i for i in range(2005, 2036)] + \
-    #         [10, 49, 11, 50, 12, 51, 13, 52, 17, 53, 18, 54, 26, 58, 28, 60,
-    #          2, 41, 4, 5, 43, 44, 14, 15, 24, 16, 7, 46, 8, 47, 251, 252, 253,
-    #          254, 255]
+    labels.extend([2002, 2003])
+    labels.extend([*range(2005, 2032)])
+    labels.extend([2034, 2035])
+
+    # Non-cortical labels
+    labels.extend([16, 24, 14, 15, 72, 85, 4, 5, 6, 7, 10, 11, 12, 13, 17, 18, 25, 26, 28, 30,
+                  91, 43, 44, 45, 46, 49, 50, 51, 52, 53, 54, 57, 58, 60, 62, 92, 630, 631, 632])
+    n_labels = min(n_labels, len(labels))
+    labels = labels[:n_labels]
+
 
     dataframe = find_sample(datapath)
     df_list = []
@@ -94,7 +72,6 @@ def main(datapath, n_labels):
         df_list.append(new_df)
 
     full_value_counts = pd.concat(df_list)
-    # labels = [l for l in full_value_counts.sum().nlargest(n_labels).index.tolist() if l != 0]
 
     for i, row in dataframe.iterrows():
         voxel_labels = nib.load(row["labels"]).get_fdata()
@@ -127,7 +104,8 @@ def main(datapath, n_labels):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="folders to files")
     parser.add_argument("datapath", type=str, help="dir with image")
-    parser.add_argument("n_labels", type=int, help="dir with image")
+    parser.add_argument("n_labels", type=int, help="number of labels used for segmentation.
+                        The first 60 follow the DKT human labeling protocol while the next 39 are from Freesurfer")
     params = parser.parse_args()
 
     main(params.datapath, params.n_labels)
