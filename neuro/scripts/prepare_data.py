@@ -6,8 +6,6 @@ import numpy as np
 import nibabel as nib
 
 
-
-
 def find_sample(path):
     """
     Args:
@@ -61,7 +59,6 @@ def main(datapath, n_labels):
     labels.extend([16, 24, 14, 15, 72, 85, 4, 5, 6, 7, 10, 11, 12, 13, 17, 18, 25, 26, 28, 30,
                   91, 43, 44, 45, 46, 49, 50, 51, 52, 53, 54, 57, 58, 60, 62, 92, 630, 631, 632])
     n_labels = min(n_labels, len(labels))
-
     labels = labels[:n_labels]
 
 
