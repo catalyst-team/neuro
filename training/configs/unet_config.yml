@@ -1,7 +1,7 @@
 model_params:
   model: UNet
   n_channels: 1
-  n_classes: 30
+  n_classes: 60
 args:
   expdir: "./training"
   logdir: "./logs"
