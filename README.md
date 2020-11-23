@@ -59,16 +59,16 @@ You can reproduce MeshNet demo with 4 simple steps
     ```bash
     mkdir Mindboggle_data
     osf -p 9ahyp clone Mindboggle_data
-    cp -r Mindboggle_data/osfstorage/Mindboggle101_volumes/ ../data/Mindboggle_data/
+    cp -r Mindboggle_data/osfstorage/Mindboggle101_volumes/ data/Mindboggle_data/
 
     If you don't want to make an OSF account the files can also be downloaded
     the correct folder using these commands:
 
-    download-gdrive 1l3YCRW7ezV9pw0e3aeYDFi4VsAm_DO7l ../data/Mindboggle_data/
-    download-gdrive 1fxvqrs98F1Gnozg-HsxCjfTrw5zJbQxm ../data/Mindboggle_data/
-    download-gdrive 1w0VXG7mLkE9tULPIxhnNK0qyguuQ7Zx8 ../data/Mindboggle_data/
-    download-gdrive 1soDBWB0iXb3Dc1XarSKgfgwiKDInSLQw ../data/Mindboggle_data/
-    download-gdrive 1jmwE69imokKJJaPKdCNK0Qlxb_r1bGN4 ../data/Mindboggle_data/
+    download-gdrive 1l3YCRW7ezV9pw0e3aeYDFi4VsAm_DO7l data/Mindboggle_data/
+    download-gdrive 1fxvqrs98F1Gnozg-HsxCjfTrw5zJbQxm data/Mindboggle_data/
+    download-gdrive 1w0VXG7mLkE9tULPIxhnNK0qyguuQ7Zx8 data/Mindboggle_data/
+    download-gdrive 1soDBWB0iXb3Dc1XarSKgfgwiKDInSLQw data/Mindboggle_data/
+    download-gdrive 1jmwE69imokKJJaPKdCNK0Qlxb_r1bGN4 data/Mindboggle_data/
 
 - Unzip data and remove archive files
     find data/Mindboggle_101 -name '*.tar.gz'| xargs -i tar zxvf {} -C data/Mindboggle_101
