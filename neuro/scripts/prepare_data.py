@@ -104,8 +104,8 @@ def main(datapath, n_labels):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="folders to files")
     parser.add_argument("datapath", type=str, help="dir with image")
-    parser.add_argument("n_labels", type=int, help="number of labels used for segmentation.
-                        The first 60 follow the DKT human labeling protocol while the next 39 are from Freesurfer")
+    parser.add_argument("n_labels", type=int, help="""number of labels used for segmentation.
+                        The first 60 follow the DKT human labeling protocol while the next 39 are from Freesurfer""")
     params = parser.parse_args()
 
     main(params.datapath, params.n_labels)
