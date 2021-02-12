@@ -23,6 +23,7 @@ stages:
     in_csv_infer: "./data/dataset_infer.csv"
     subvolume_shape: [38, 38, 38]
     volume_shape: [256, 256, 256]
+    train_subject_samples: 128
     loaders_params:
       train:
         batch_size: 16
@@ -58,5 +59,6 @@ stages:
         callback: SchedulerCallback
       metrics:
         callback: CustomDiceCallback
+        num_classes: 60
       saver:
         callback: CheckpointCallback

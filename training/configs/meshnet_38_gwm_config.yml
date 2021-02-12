@@ -1,8 +1,7 @@
 model_params:
   model: MeshNet
   n_channels: 1
-  n_classes: 60
-  input_size: 68
+  n_classes: 3
 args:
   expdir: "./training"
   logdir: "./logs"
@@ -19,19 +18,21 @@ distributed_params:  # OPTIONAL KEYWORD, параметры для distributed t
 
 stages:
   data_params:
-    in_csv_train: "./data/dataset_train.csv"
-    in_csv_valid: "./data/dataset_valid.csv"
-    in_csv_infer: "./data/dataset_infer.csv"
-    subvolume_shape: [68, 68, 68]
+    in_csv_train: "./data/afedorov_T1_c_data/dataset_train.csv"
+    in_csv_valid: "./data/afedorov_T1_c_data/dataset_valid.csv"
+    subvolume_shape: [38, 38, 38]
     volume_shape: [256, 256, 256]
+    train_subject_samples: 128
+
     loaders_params:
       train:
         batch_size: 16
-        num_workers: 0
+        num_workers: 16
         pin_memory: True
+
       valid:
         batch_size: 16
-        num_workers: 10
+        num_workers: 16
         drop_last: True
 
   criterion_params:
@@ -39,7 +40,7 @@ stages:
 
   stage1:
     state_params:
-      num_epochs: 30
+      num_epochs: 200
 
     optimizer_params:
       optimizer: Adam
@@ -48,7 +49,7 @@ stages:
 
     scheduler_params:
       scheduler: CosineAnnealingWarmRestarts
-      T_0: 30
+      T_0: 50
       T_mult: 2
       eta_min: 1e-10
 
@@ -59,6 +60,6 @@ stages:
         callback: SchedulerCallback
       metrics:
         callback: CustomDiceCallback
-        num_classes: 60
+        num_classes: 3
       saver:
         callback: CheckpointCallback

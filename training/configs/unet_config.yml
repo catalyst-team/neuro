@@ -58,5 +58,6 @@ stages:
         callback: SchedulerCallback
       metrics:
         callback: CustomDiceCallback
+        num_classes: 60
       saver:
         callback: CheckpointCallback
