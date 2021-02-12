@@ -1,4 +1,5 @@
 import numpy as np
+from functools import partial
 
 import torch
 
@@ -38,6 +39,7 @@ def custom_dice_metric(
 class CustomDiceCallback(BatchMetricCallback):
     def __init__(
         self,
+        num_classes: int = 30,
         input_key: str = "targets",
         output_key: str = "logits",
         prefix: str = "dice",
@@ -45,9 +47,10 @@ class CustomDiceCallback(BatchMetricCallback):
         threshold: float = None,
         activation: str = "Softmax",
     ):
+        dice_metric = partial(custom_dice_metric, num_classes=num_classes)
         super().__init__(
             prefix=prefix,
-            metric_fn=custom_dice_metric,
+            metric_fn=dice_metric,
             input_key=input_key,
             output_key=output_key,
             eps=eps,
