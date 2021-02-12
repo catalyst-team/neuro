@@ -5,7 +5,7 @@ from brain_dataset import BrainDataset
 from reader import NiftiReader_Image, NiftiReader_Mask
 
 import torch
-from torch.utils.data import RandomSampler
+from torch.utils.data import RandomSampler, SequentialSampler
 from torchvision import transforms
 
 from catalyst.contrib.utils.pandas import read_csv_data
@@ -50,11 +50,10 @@ class Experiment(ConfigExperiment):
         subvolume_shape: List[int],
         volume_shape: List[int],
         stage: str,
+        train_subject_samples: int,
         in_csv_train: str = None,
         in_csv_valid: str = None,
         in_csv_infer: str = None,
-        n_samples: int = 100,
-        max_batch_size: int = 3,
         **kwargs
     ):
         """
@@ -62,9 +61,11 @@ class Experiment(ConfigExperiment):
             subvolume_shape: dimention of subvolume
             volume_shape: dimention of volume
             stage (str)
-            in_csv_train (str)
-            in_csv_valid (str)
-            in_csv_infer (str)
+            train_subject_samples (int): number of randomly sampled training
+                                         samples per subject
+            in_csv_train (str): csv with training information
+            in_csv_valid (str): csv with validation information
+            in_csv_infer (str): csv with inference information
         """
         manager = Manager()
         df, df_train, df_valid, df_infer = read_csv_data(
@@ -81,34 +82,33 @@ class Experiment(ConfigExperiment):
             ]
         )
 
-        for mode, source in zip(("train", "valid"), (df_train, df_valid)):
-            if source is not None and len(source) > 0:
+        for mode, list_data in zip(("train", "valid"), (df_train, df_valid)):
+            if list_data is not None and len(list_data) > 0:
+                if mode == 'train':
+                    val_subjects_arg = 0
+                else:
+                    val_subjects_arg = len(list_data)
+
                 dataset = BrainDataset(
                     shared_dict=manager.dict(),
-                    list_data=source,
+                    list_data=list_data,
                     list_shape=volume_shape,
                     list_sub_shape=subvolume_shape,
                     open_fn=open_fn,
                     dict_transform=self.get_transforms(stage=stage, mode=mode),
                     mode=mode,
-                    n_samples=n_samples,
+                    val_subjects=val_subjects_arg,
                     input_key="images",
-                    output_key="targets",
-                )
-                train_random_sampler = RandomSampler(
-                    data_source=dataset, replacement=True, num_samples=80 * 128
-                )
-                val_random_sampler = RandomSampler(
-                    data_source=dataset, replacement=True, num_samples=20 * 216
-                )
+                    output_key="targets",)
+
                 if mode == "train":
-                    datasets[mode] = {
-                        "dataset": dataset,
-                        "sampler": train_random_sampler,
-                    }
+                    sampler = RandomSampler(
+                        data_source=dataset, replacement=True,
+                        num_samples=len(dataset) * train_subject_samples)
+
                 else:
-                    datasets[mode] = {
-                        "dataset": dataset,
-                        "sampler": val_random_sampler,
-                    }
+                    sampler = SequentialSampler(data_source=dataset)
+
+                datasets[mode] = {"dataset": dataset, "sampler": sampler}
+
         return datasets
