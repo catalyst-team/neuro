@@ -75,14 +75,12 @@ class BrainDataset(Dataset):
             List of elements by index
         """
 
-        start = time.time()
-        end = time.time()
-
         if self.mode not in ["train", "validation"]:
-            coords = np.expand_dims(coords[index // len(self.coords)], 0)
+            coords = np.expand_dims(self.coords[index // len(self.coords)], 0)
             item = self.data[index // len(self.coords)]
         else:
             item = self.data[index]
+            coords = self.coords
         dict_ = self.open_fn(item)
         sample_dict = self.__crop__(dict_, coords)
 
@@ -119,8 +117,7 @@ class BrainDataset(Dataset):
                     output_labels_list.append(np.expand_dims(
                         dict_key[start_end[0][0] : start_end[0][1],
                                  start_end[1][0] : start_end[1][1],
-                                 start_end[2][0] : start_end[2][1],
-                                ],
+                                 start_end[2][0] : start_end[2][1]],
                         0,))
 
         output_images = np.concatenate(output_images_list)
