@@ -5,7 +5,7 @@ from scipy.stats import truncnorm
 class CoordsGenerator:
     """
     Args:
-        Generation random coordinates
+        Generates coordinates from
 
     """
 
@@ -13,6 +13,7 @@ class CoordsGenerator:
         self, list_shape=None, list_sub_shape=None, mus=None, sigmas=None
     ):
         """
+        Initialize a truncated normal distribution based on the volume, subvolume, mean and sigmas.
         Args:
             list_shape
             list_sub_shape
@@ -84,7 +85,7 @@ class CoordsGenerator:
             n_samples: numbers of subsamples
             mode: mode ot training
         """
-        if mode == "train":
+        if mode in ["train", "validation"]:
             coord = self._generator()
         else:
             coord = self._generate_centered_nonoverlap_1d_grid()
