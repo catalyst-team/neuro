@@ -1,5 +1,5 @@
 from catalyst.dl import registry, Callback, BatchMetricCallback, CallbackOrder, State
-from custom_metrics import custom_dict_metric
+from custom_metrics import custom_dice_metric
 
 
 @registry.Callback
