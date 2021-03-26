@@ -1,6 +1,3 @@
-import time
-
-import joblib
 import nibabel as nib
 import numpy as np
 
@@ -35,7 +32,6 @@ class NiftiReader_Image(ReaderSpec):
         Returns:
             np.ndarray: Image
         """
-        start = time.time()
         image_name = str(element[self.input_key])
         img = nib.load(image_name)
         img = img.get_fdata(dtype=np.float32)
@@ -44,7 +40,6 @@ class NiftiReader_Image(ReaderSpec):
         new_img[: img.shape[0], : img.shape[1], : img.shape[2]] = img
 
         output = {self.output_key: new_img.astype(np.float32)}
-        end = time.time()
         return output
 
 
@@ -74,7 +69,6 @@ class NiftiReader_Mask(ReaderSpec):
         Returns:
             np.ndarray: Image
         """
-        start = time.time()
         image_name = str(element[self.input_key])
         img = nib.load(image_name, mmap=False)
         img = img.get_fdata(dtype=np.float32)
