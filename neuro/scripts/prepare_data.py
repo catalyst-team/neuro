@@ -98,7 +98,7 @@ def main(datapath, n_labels):
     dataframe.to_csv("./data/dataset.csv", index=False)
     dataframe.iloc[:80, :].to_csv("./data/dataset_train.csv", index=False)
     dataframe.iloc[80:100, :].to_csv("./data/dataset_valid.csv", index=False)
-    dataframe.iloc[-1, :].to_csv("./data/dataset_infer.csv", index=False)
+    dataframe.iloc[-1, :].to_frame().T.to_csv("./data/dataset_infer.csv", index=False)
 
 
 if __name__ == "__main__":
