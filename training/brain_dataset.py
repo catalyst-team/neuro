@@ -22,7 +22,6 @@ class BrainDataset(Dataset):
         list_sub_shape: List[int],
         open_fn: Callable,
         dict_transform: Callable = None,
-        n_samples: int = 100,
         mode: str = "train",
         input_key: str = "images",
         output_key: str = "targets",
@@ -41,7 +40,6 @@ class BrainDataset(Dataset):
             dict_transform (callable): transforms to use on dict.
                 (for example normalize image, add blur, crop/resize/etc)
         """
-        self.n_samples = n_samples
         self.shared_dict = shared_dict
         self.data = list_data
         self.open_fn = open_fn
@@ -56,6 +54,7 @@ class BrainDataset(Dataset):
         self.output_key = output_key
         self.subvolume_shape = np.array(list_sub_shape)
         self.coords = self.generator.get_coordinates(mode=self.mode)
+        self.subjects = len(self.data)
 
     def __len__(self) -> int:
         """
@@ -92,7 +91,8 @@ class BrainDataset(Dataset):
             dict_ (List[Dict]): list of dicts, that stores
                 you data annotations,
                 (for example path to images, labels, bboxes, etc.)
-            coords (callable): coords od crops
+            coords (callable): coords of crops
+
         Returns:
             crop images
         """
@@ -124,4 +124,5 @@ class BrainDataset(Dataset):
         output_labels = np.concatenate(output_labels_list)
         output[self.input_key] = output_images
         output[self.output_key] = output_labels.squeeze().astype(np.int64)
+        output['coords'] = coords
         return self.dict_transform(output)
