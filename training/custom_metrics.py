@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 
 from catalyst.utils.torch import get_activation_fn
@@ -10,7 +9,7 @@ def custom_dice_metric(
     eps: float = 1e-7,
     threshold: float = None,
     num_classes: int = 30,
-    activation: str = "Softmax2d",
+    activation: str = "Sigmoid",
 ):
 
     activation_fn = get_activation_fn(activation)
@@ -21,7 +20,6 @@ def custom_dice_metric(
         .permute(0, 4, 1, 2, 3)
         .cuda()
     )
-    # the following implementation conflicts with https://github.com/Lasagne/Recipes/issues/99
 
     targets = torch.flatten(one_hot_targets)
     outputs = torch.flatten(outputs)
@@ -31,4 +29,3 @@ def custom_dice_metric(
     dice = (2.0 * intersection + eps * (union == 0)) / (union + eps)
 
     return dice
-
