@@ -1,7 +1,6 @@
 from typing import Any, Callable, List, Union
 from multiprocessing import Manager
 from pathlib import Path
-import time
 
 from generator_coords import CoordsGenerator
 import numpy as np
@@ -75,7 +74,7 @@ class BrainDataset(Dataset):
         """
 
         if self.mode not in ["train", "validation"]:
-            coords = np.expand_dims(self.coords[index // len(self.coords)], 0)
+            coords = np.expand_dims(self.coords[index], 0)
             item = self.data[index // len(self.coords)]
         else:
             item = self.data[index]
