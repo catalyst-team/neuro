@@ -1,64 +1,72 @@
-model_params:
-  model: MeshNet
+model:
+  _target_: MeshNet
   n_channels: 1
   n_classes: 60
+
 args:
   expdir: "./training"
-  logdir: "./logs"
+  logdir: &logdir "./logs"
+  verbose: True
+  deterministic: False
 
-runner_params:
-  input_key: "images"  # Пример
-  output_key: "logits"  # Пример
-  input_target_key: "labels"
+runner:
+  _target_: CustomSupervisedConfigRunner
+  input_key: &model_input "images"
+  output_key: &model_output "logits"
+  target_key: &model_target "targets"
 
-distributed_params:  # OPTIONAL KEYWORD, параметры для distributed training и NVIDIA Apex
-  rank: 0 # Rank для distributed training
-  opt_level: O1  # Пример для NVIDIA Apex
-  syncbn: False
+engine:
+  _target_: DeviceEngine
+
+loggers:
+  console:
+    _target_: ConsoleLogger
 
 stages:
-  data_params:
-    in_csv_train: "./data/dataset_train.csv"
-    in_csv_valid: "./data/dataset_valid.csv"
-    in_csv_infer: "./data/dataset_infer.csv"
-    subvolume_shape: [38, 38, 38]
-    volume_shape: [256, 256, 256]
-    train_subject_samples: 128
-    loaders_params:
-      train:
-        batch_size: 16
-        num_workers: 0
-        pin_memory: True
-      valid:
-        batch_size: 16
-        num_workers: 10
-        drop_last: True
+  train:
+    num_epochs: 30
 
-  criterion_params:
-    criterion: CrossEntropyLoss
+    loaders: &loaders
+      in_csv_train: "./data/dataset_train.csv"
+      in_csv_valid: "./data/dataset_valid.csv"
+      in_csv_infer: "./data/dataset_infer.csv"
+      subvolume_shape: [38, 38, 38]
+      volume_shape: [256, 256, 256]
+      batch_size: 16
+      num_workers: 20
+      pin_memory: True
 
-  stage1:
-    state_params:
-      num_epochs: 30
+    criterion:
+      _target_: CrossEntropyLoss
 
-    optimizer_params:
-      optimizer: Adam
+    optimizer:
+      _target_: Adam
       lr: 0.01
       weight_decay: 0.0001
 
-    scheduler_params:
-      scheduler: CosineAnnealingWarmRestarts
+    scheduler:
+      _target_: CosineAnnealingWarmRestarts
       T_0: 30
       T_mult: 2
       eta_min: 1e-10
 
-    callbacks_params:
-      logger:
-        callback: TensorboardLogger
+    callbacks: &callbacks
       scheduler:
-        callback: SchedulerCallback
-      metrics:
-        callback: CustomDiceCallback
+        _target_: SchedulerCallback
+      dice:
+        _target_: CustomDiceCallback
+        input_key: *model_output
+        target_key: *model_target
+        metric_key: "dice"
         num_classes: 60
+      loss:
+        _target_: CriterionCallback
+        input_key: *model_output
+        target_key: *model_target
+        metric_key: &model_loss "loss"
+      optimizer:
+        _target_: OptimizerCallback
+        metric_key: *model_loss
       saver:
-        callback: CheckpointCallback
+        _target_: CheckpointCallback
+        logdir: *logdir

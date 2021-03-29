@@ -1,7 +1,5 @@
 import torch
 
-from catalyst.utils.torch import get_activation_fn
-
 
 def custom_dice_metric(
     outputs: torch.Tensor,
@@ -9,11 +7,9 @@ def custom_dice_metric(
     eps: float = 1e-7,
     threshold: float = None,
     num_classes: int = 30,
-    activation: str = "Sigmoid",
 ):
 
-    activation_fn = get_activation_fn(activation)
-    outputs = activation_fn(outputs)
+    outputs = torch.nn.functional.softmax(outputs)
 
     one_hot_targets = (
         torch.nn.functional.one_hot(targets, num_classes)

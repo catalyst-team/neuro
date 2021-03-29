@@ -1,10 +1,10 @@
 import nibabel as nib
 import numpy as np
 
-from catalyst.data import ReaderSpec
+from catalyst.contrib.data.reader import IReader
 
 
-class NiftiReader_Image(ReaderSpec):
+class NiftiReader_Image(IReader):
     """
     Nifti reader abstraction for NeuroImaging. Reads nifti images
     from a `csv` dataset.
@@ -43,7 +43,7 @@ class NiftiReader_Image(ReaderSpec):
         return output
 
 
-class NiftiReader_Mask(ReaderSpec):
+class NiftiReader_Mask(IReader):
     """
     Nifti reader abstraction for NeuroImaging. Reads nifti images from
     a `csv` dataset.
