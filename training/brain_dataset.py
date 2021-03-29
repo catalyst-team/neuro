@@ -20,6 +20,7 @@ class BrainDataset(Dataset):
         list_shape: List[int],
         list_sub_shape: List[int],
         open_fn: Callable,
+        n_subvolumes: int = None,
         dict_transform: Callable = None,
         mode: str = "train",
         input_key: str = "images",
@@ -52,8 +53,8 @@ class BrainDataset(Dataset):
         self.input_key = input_key
         self.output_key = output_key
         self.subvolume_shape = np.array(list_sub_shape)
-        self.coords = self.generator.get_coordinates(mode=self.mode)
         self.subjects = len(self.data)
+        self.n_subvolumes = n_subvolumes
 
     def __len__(self) -> int:
         """
@@ -61,7 +62,7 @@ class BrainDataset(Dataset):
             int: length of the dataset
         """
         if self.mode not in ["train", "validation"]:
-            return len(self.data) * len(self.coords)
+            return len(self.n_subvolumes) * len(self.data)
         else:
             return len(self.data)
 
@@ -74,11 +75,15 @@ class BrainDataset(Dataset):
         """
 
         if self.mode not in ["train", "validation"]:
-            coords = np.expand_dims(self.coords[index], 0)
-            item = self.data[index // len(self.coords)]
+            coords = self.generator.get_coordinates(mode='test')
+            if index > len(coords):
+                coords = self.generator.get_coordinates()
+
+            item = self.data[index // len(self.n_subvolumes)]
+
         else:
             item = self.data[index]
-            coords = self.coords
+            coords = self.generator.get_coordinates()
         dict_ = self.open_fn(item)
         sample_dict = self.__crop__(dict_, coords)
 

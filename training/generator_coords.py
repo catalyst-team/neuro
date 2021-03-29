@@ -85,8 +85,8 @@ class CoordsGenerator:
             n_samples: numbers of subsamples
             mode: mode ot training
         """
-        if mode in ["train", "validation"]:
-            coord = self._generator()
-        else:
+        if mode in ["test"]:
             coord = self._generate_centered_nonoverlap_1d_grid()
+        else:
+            coord = self._generator()
         return coord
