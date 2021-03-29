@@ -29,7 +29,6 @@ stages:
     loaders: &loaders
       in_csv_train: "./data/dataset_train.csv"
       in_csv_valid: "./data/dataset_valid.csv"
-      in_csv_infer: "./data/dataset_infer.csv"
       subvolume_shape: [38, 38, 38]
       volume_shape: [256, 256, 256]
       batch_size: 16
