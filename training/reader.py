@@ -4,7 +4,7 @@ import numpy as np
 from catalyst.contrib.data.reader import IReader
 
 
-class NiftiReader_Image(IReader):
+class NiftiFixedVolumeReader(IReader):
     """
     Nifti reader abstraction for NeuroImaging. Reads nifti images
     from a `csv` dataset.
@@ -34,16 +34,15 @@ class NiftiReader_Image(IReader):
         """
         image_name = str(element[self.input_key])
         img = nib.load(image_name)
-        img = img.get_fdata(dtype=np.float32)
+        img = img.get_fdata()
         img = (img - img.min()) / (img.max() - img.min())
         new_img = np.zeros([256, 256, 256])
         new_img[: img.shape[0], : img.shape[1], : img.shape[2]] = img
-
-        output = {self.output_key: new_img.astype(np.float32)}
+        output = {self.output_key: new_img}
         return output
 
 
-class NiftiReader_Mask(IReader):
+class NiftiReader(IReader):
     """
     Nifti reader abstraction for NeuroImaging. Reads nifti images from
     a `csv` dataset.
@@ -70,7 +69,7 @@ class NiftiReader_Mask(IReader):
             np.ndarray: Image
         """
         image_name = str(element[self.input_key])
-        img = nib.load(image_name, mmap=False)
-        img = img.get_fdata(dtype=np.float32)
+        img = nib.load(image_name)
+        img = img.get_fdata()
         output = {self.output_key: img}
         return output

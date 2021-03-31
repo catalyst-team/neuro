@@ -2,7 +2,7 @@ from typing import List
 from torchvision import transforms
 
 from brain_dataset import BrainDataset
-from reader import NiftiReader_Image, NiftiReader_Mask
+from reader import NiftiReader, NiftiFixedVolumeReader
 
 import pandas as pd
 import torch
@@ -58,8 +58,8 @@ class IRunnerMixin(IRunner):
 
         datasets = {}
         open_fn = ReaderCompose(
-            [NiftiReader_Image(input_key="images", output_key="images"),
-             NiftiReader_Mask(input_key="nii_labels", output_key="targets")]
+            [NiftiFixedVolumeReader(input_key="images", output_key="images"),
+             NiftiReader(input_key="nii_labels", output_key="targets")]
         )
 
         for mode, source in zip(("train", "validation"), (in_csv_train,
