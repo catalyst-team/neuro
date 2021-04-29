@@ -124,14 +124,6 @@ MeshNet_68_kwargs = [
         "in_channels": 71,
         "kernel_size": 3,
         "out_channels": 71,
-        "padding": 1,
-        "stride": 1,
-        "dilation": 1,
-    },
-    {
-        "in_channels": 71,
-        "kernel_size": 3,
-        "out_channels": 71,
         "padding": 2,
         "stride": 1,
         "dilation": 2,
@@ -143,6 +135,14 @@ MeshNet_68_kwargs = [
         "padding": 4,
         "stride": 1,
         "dilation": 4,
+    },
+    {
+        "in_channels": 71,
+        "kernel_size": 3,
+        "out_channels": 71,
+        "padding": 8,
+        "stride": 1,
+        "dilation": 8,
     },
     {
         "in_channels": 71,
@@ -179,14 +179,16 @@ def conv_w_bn_before_act(*args, **kwargs):
     )
 
 
-def init_weights(m):
-    if type(m) == nn.Linear:
-        torch.nn.init.xavier_uniform(m.weight)
+def init_weights(model):
+    for m in model.modules():
+        if isinstance(m, (nn.Conv2d, nn.Conv3d, nn.ConvTranspose2d, nn.ConvTranspose3d)):
+            nn.init.xavier_normal_(m.weight, gain=nn.init.calculate_gain('relu'))
+            nn.init.constant_(m.bias, 0.)
 
 
 class MeshNet(nn.Module):
-    def __init__(self, n_channels, n_classes, input_size=38):
-        if input_size >= 68:
+    def __init__(self, n_channels, n_classes, large=True):
+        if large:
             params = MeshNet_68_kwargs
         else:
             params = MeshNet_38_or_64_kwargs
@@ -200,7 +202,7 @@ class MeshNet(nn.Module):
         ]
         layers.append(nn.Conv3d(**params[-1]))
         self.model = nn.Sequential(*layers)
-        self.model.apply(init_weights)
+        init_weights(self.model,)
 
     def forward(self, x):
         x = self.model(x)

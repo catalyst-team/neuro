@@ -1,4 +1,5 @@
 import torch
+from catalyst.metrics.functional._segmentation import dice
 
 
 def custom_dice_metric(
@@ -17,11 +18,6 @@ def custom_dice_metric(
         .cuda()
     )
 
-    targets = torch.flatten(one_hot_targets)
-    outputs = torch.flatten(outputs)
+    macro_dice = dice(outputs, one_hot_targets, mode='macro')
+    return macro_dice
 
-    intersection = torch.sum(torch.dot(targets.double(), outputs.double()))
-    union = torch.sum(targets) + torch.sum(outputs)
-    dice = (2.0 * intersection + eps * (union == 0)) / (union + eps)
-
-    return dice
