@@ -1,5 +1,4 @@
 from typing import Any, Callable, List, Union
-from multiprocessing import Manager
 from pathlib import Path
 
 from generator_coords import CoordsGenerator
@@ -15,7 +14,6 @@ class BrainDataset(Dataset):
 
     def __init__(
         self,
-        shared_dict,
         list_data: List[int],
         list_shape: List[int],
         list_sub_shape: List[int],
@@ -40,7 +38,6 @@ class BrainDataset(Dataset):
             dict_transform (callable): transforms to use on dict.
                 (for example normalize image, add blur, crop/resize/etc)
         """
-        self.shared_dict = shared_dict
         self.data = list_data
         self.open_fn = open_fn
         self.generator = CoordsGenerator(
@@ -61,33 +58,41 @@ class BrainDataset(Dataset):
         Returns:
             int: length of the dataset
         """
-        if self.mode not in ["train", "validation"]:
-            return len(self.n_subvolumes) * len(self.data)
-        else:
-            return len(self.data)
+        return self.n_subvolumes * len(self.data)
 
-    def __getitem__(self, index: int) -> Any:
+    def __getitem__(self, index: Union[int, list]) -> Any:
         """Gets element of the dataset.
         Args:
             index (int): index of the element in the dataset
         Returns:
             List of elements by index
         """
+        if isinstance(index, int):
+            index = [index]
 
-        if self.mode not in ["train", "validation"]:
+        subj_data_dict = {}
+        subject_ids = [i // self.n_subvolumes for i in index]
+        unique_subject_ids = set(subject_ids)
+
+        for subj_id in unique_subject_ids:
+            subj_data_dict[subj_id] = self.open_fn(self.data[subj_id])
+
+        coords_index = [i % self.n_subvolumes for i in index]
+        coords_list = []
+
+        for i in coords_index:
             coords = self.generator.get_coordinates(mode='test')
-            if index > len(coords):
+            if self.mode in ["train", "validation"] or i >= len(coords):
                 coords = self.generator.get_coordinates()
+                coords_list.append(coords)
+            else:
+                coords_list.append(np.expand_dims(coords[i], 0))
 
-            item = self.data[index // len(self.n_subvolumes)]
+        batch_list = []
+        for i, subj in enumerate(subject_ids):
+            batch_list.append(self.__crop__(subj_data_dict[subj], coords_list[i]))
 
-        else:
-            item = self.data[index]
-            coords = self.generator.get_coordinates()
-        dict_ = self.open_fn(item)
-        sample_dict = self.__crop__(dict_, coords)
-
-        return sample_dict
+        return batch_list
 
     def __crop__(self, dict_, coords):
         """Get crop of images.
@@ -100,7 +105,7 @@ class BrainDataset(Dataset):
         Returns:
             crop images
         """
-        output = self.shared_dict
+        output = {}
         output_labels_list = []
         output_images_list = []
         for start_end in coords:
