@@ -94,15 +94,10 @@ def get_loaders(
 volume_shape = [256, 256, 256]
 subvolume_shape = [38, 38, 38]
 train_loaders, infer_loaders = get_loaders(0, volume_shape, subvolume_shape,
-                                           #"./data/afedorov_T1_c_atlas_data/dataset_train.csv",
-                                           #"./data/afedorov_T1_c_atlas_data/dataset_valid.csv",
-                                           #"./data/afedorov_T1_c_atlas_data/dataset_valid.csv", )
                                            "./data/dataset_train.csv",
                                            "./data/dataset_valid.csv",
                                            "./data/dataset_infer.csv", )
-                                           #"./data/afedorov_T1_c_data/dataset_train.csv",
-                                           #"./data/afedorov_T1_c_data/dataset_valid.csv",
-                                           #"./data/afedorov_T1_c_data/dataset_valid.csv", )
+                                           )
 
 
 class CustomRunner(Runner):
