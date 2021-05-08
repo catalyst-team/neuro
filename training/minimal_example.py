@@ -3,6 +3,7 @@ from tqdm import tqdm
 import numpy as np
 import nibabel as nib
 import collections
+import argparse
 from collections import OrderedDict
 
 import catalyst
@@ -12,7 +13,7 @@ from catalyst.contrib.utils.pandas import dataframe_to_list
 from torch.utils.data import SequentialSampler
 from torch.utils.data import DataLoader
 from catalyst.data import ReaderCompose
-from torch.optim.lr_scheduler import CosineAnnealingLR, OneCycleLR
+from torch.optim.lr_scheduler import OneCycleLR
 from catalyst.callbacks import CheckpointCallback
 from torch.nn import functional as F
 from typing import List
@@ -22,16 +23,17 @@ from reader import NiftiFixedVolumeReader, NiftiReader
 from model import MeshNet, UNet
 from catalyst import metrics
 from catalyst.data import BatchPrefetchLoaderWrapper
-from catalyst.dl import Runner, LRFinder
+from catalyst.dl import Runner
 
 from catalyst.metrics.functional._segmentation import dice
-from catalyst.contrib.nn.criterion.focal import FocalLossMultiClass
 
 
 def get_loaders(
     random_state: int,
     volume_shape: List[int],
     subvolume_shape: List[int],
+    train_subvolumes: int = 128,
+    infer_subvolumes: int = 512,
     in_csv_train: str = None,
     in_csv_valid: str = None,
     in_csv_infer: str = None,
@@ -51,9 +53,9 @@ def get_loaders(
     for mode, source in zip(("train", "validation", "infer"),
                             (in_csv_train, in_csv_valid, in_csv_infer)):
         if mode == "infer":
-            n_subvolumes = 512
+            n_subvolumes = infer_subvolumes
         else:
-            n_subvolumes = 128
+            n_subvolumes = train_subvolumes
 
         if source is not None and len(source) > 0:
             dataset = BrainDataset(
@@ -91,16 +93,12 @@ def get_loaders(
 
     return train_loaders, infer_loaders
 
-volume_shape = [256, 256, 256]
-subvolume_shape = [38, 38, 38]
-train_loaders, infer_loaders = get_loaders(0, volume_shape, subvolume_shape,
-                                           "./data/dataset_train.csv",
-                                           "./data/dataset_valid.csv",
-                                           "./data/dataset_infer.csv", )
-                                           )
-
-
 class CustomRunner(Runner):
+
+    def __init__(self, n_classes: int):
+        """Init."""
+        super().__init__()
+        self.n_classes = n_classes
 
     def get_loaders(self, stage: str) -> "OrderedDict[str, DataLoader]":
         """Returns the loaders for a given stage."""
@@ -137,7 +135,7 @@ class CustomRunner(Runner):
             scheduler.step()
 
         one_hot_targets = (
-            torch.nn.functional.one_hot(y, 31)
+            torch.nn.functional.one_hot(y, self.n_classes)
             .permute(0, 4, 1, 2, 3)
             .cuda()
             )
@@ -155,31 +153,6 @@ class CustomRunner(Runner):
         for key in ["loss", "macro_dice"]:
             self.loader_metrics[key] = self.meters[key].compute()[0]
         super().on_loader_end(runner)
-
-
-n_classes = 31
-n_epochs = 30
-meshnet = MeshNet(n_channels=1, n_classes=n_classes)
-
-logdir = "logs/meshnet_mindboggle"
-
-optimizer = torch.optim.Adam(meshnet.parameters(), lr=0.02)
-
-
-scheduler = OneCycleLR(optimizer, max_lr=.02,
-                       epochs=n_epochs, steps_per_epoch=len(train_loaders['train']))
-
-#scheduler = LRFinder(final_lr=1.0)
-
-runner = CustomRunner()
-runner.train(model=meshnet, optimizer=optimizer, loaders=train_loaders,
-             num_epochs=n_epochs, scheduler=scheduler,
-             callbacks=[CheckpointCallback(logdir=logdir)], logdir=logdir, verbose=True)
-
-segmentations = {}
-for subject in range(infer_loaders['infer'].dataset.subjects):
-    segmentations[subject] = torch.zeros(tuple(np.insert(volume_shape, 0, n_classes)), dtype=torch.uint8)
-
 
 def voxel_majority_predict_from_subvolumes(loader, n_classes, segmentations):
     if segmentations is None:
@@ -205,25 +178,80 @@ def voxel_majority_predict_from_subvolumes(loader, n_classes, segmentations):
         segmentations[i] = torch.max(segmentations[i], 0)[1]
     return segmentations
 
-segmentations = voxel_majority_predict_from_subvolumes(infer_loaders['infer'],
-                                                       n_classes, segmentations)
-subject_metrics = []
-for subject, subject_data in enumerate(tqdm(infer_loaders['infer'].dataset.data)):
-    seg_labels = nib.load(subject_data['nii_labels']).get_fdata()
-    segmentation_labels = torch.nn.functional.one_hot(
-        torch.from_numpy(seg_labels).to(torch.int64), n_classes)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='T1 segmentation Training')
+    parser.add_argument('--train_path', metavar='PATH',
+                        default="./data/dataset_train.csv",
+                        help='Path to list with brains for training')
+    parser.add_argument('--validation_path', metavar='PATH',
+                        default="./data/dataset_valid.csv",
+                        help='Path to list with brains for validation')
+    parser.add_argument('--inference_path', metavar='PATH',
+                        default="./data/dataset_infer.csv",
+                        help='Path to list with brains for inference')
+    parser.add_argument('--n_classes', default=31, type=int)
+    parser.add_argument('--train_subvolumes', default=128, type=int,
+                        metavar='N', help='Number of total subvolumes to sample from one brain')
+    parser.add_argument('--infer_subvolumes', default=512, type=int,
+                        metavar='N', help='Number of total subvolumes to sample from one brain')
+    parser.add_argument('--sv_w', default=38, type=int, metavar='N',
+                        help='Width of subvolumes')
+    parser.add_argument('--sv_h', default=38, type=int, metavar='N',
+                        help='Height of subvolumes')
+    parser.add_argument('--sv_d', default=38, type=int, metavar='N',
+                        help='Depth of subvolumes')
+    parser.add_argument('--model', default='meshnet')
+    parser.add_argument('--n_epochs', default=30, type=int, metavar='N',
+                        help='number of total epochs to run')
+    args = parser.parse_args()
+    print('{}'.format(args))
 
-    inference_dice = dice(
-        torch.nn.functional.one_hot(
-            segmentations[subject], n_classes).permute(0, 3, 1, 2),
-        segmentation_labels.permute(0, 3, 1, 2)).detach().numpy()
-    macro_inference_dice = dice(
-        torch.nn.functional.one_hot(segmentations[subject], n_classes).permute(0, 3, 1, 2),
-        segmentation_labels.permute(0, 3, 1, 2), mode='macro').detach().numpy()
-    subject_metrics.append((inference_dice, macro_inference_dice))
+    volume_shape = [256, 256, 256]
+    subvolume_shape = [args.sv_h, args.sv_w, args.sv_d]
+    train_loaders, infer_loaders = get_loaders(
+        0, volume_shape, subvolume_shape, args.train_subvolumes,
+        args.infer_subvolumes, args.train_path, args.validation_path,
+        args.inference_path)
 
-per_class_df = pd.DataFrame([metric[0] for metric in subject_metrics])
-macro_df = pd.DataFrame([metric[1] for metric in subject_metrics])
-print(per_class_df, macro_df)
-print(macro_df.mean())
+    if args.model == 'meshnet':
+        net = MeshNet(n_channels=1, n_classes=args.n_classes)
+    else:
+        net = UNet(n_channels=1, n_classes=args.n_classes)
 
+    logdir = "training/logs/{model}_mindboggle".format(model=args.model)
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.02)
+    scheduler = OneCycleLR(optimizer, max_lr=.02,
+                           epochs=args.n_epochs, steps_per_epoch=len(train_loaders['train']))
+
+    runner = CustomRunner(n_classes=args.n_classes)
+    runner.train(model=net, optimizer=optimizer, loaders=train_loaders,
+                 num_epochs=args.n_epochs, scheduler=scheduler,
+                 callbacks=[CheckpointCallback(logdir=logdir)], logdir=logdir, verbose=True)
+
+    segmentations = {}
+    for subject in range(infer_loaders['infer'].dataset.subjects):
+        segmentations[subject] = torch.zeros(tuple(np.insert(volume_shape, 0,
+                                                             args.n_classes)), dtype=torch.uint8)
+
+
+    segmentations = voxel_majority_predict_from_subvolumes(infer_loaders['infer'],
+                                                           args.n_classes, segmentations)
+    subject_metrics = []
+    for subject, subject_data in enumerate(tqdm(infer_loaders['infer'].dataset.data)):
+        seg_labels = nib.load(subject_data['nii_labels']).get_fdata()
+        segmentation_labels = torch.nn.functional.one_hot(
+            torch.from_numpy(seg_labels).to(torch.int64), args.n_classes)
+
+        inference_dice = dice(
+            torch.nn.functional.one_hot(
+                segmentations[subject], args.n_classes).permute(0, 3, 1, 2),
+            segmentation_labels.permute(0, 3, 1, 2)).detach().numpy()
+        macro_inference_dice = dice(
+            torch.nn.functional.one_hot(segmentations[subject], args.n_classes).permute(0, 3, 1, 2),
+            segmentation_labels.permute(0, 3, 1, 2), mode='macro').detach().numpy()
+        subject_metrics.append((inference_dice, macro_inference_dice))
+
+    per_class_df = pd.DataFrame([metric[0] for metric in subject_metrics])
+    macro_df = pd.DataFrame([metric[1] for metric in subject_metrics])
+    print(per_class_df, macro_df)
+    print(macro_df.mean())
