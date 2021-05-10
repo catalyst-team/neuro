@@ -57,7 +57,8 @@ class Predictor:
         normalized_img = self.preprocess_image(img)
         coords_list = self.generate_coords()
         one_hot_predicted_segmentation = torch.zeros(tuple(
-            np.insert(self.volume_shape, 0, self.n_classes)), dtype=torch.uint8)
+            np.insert(self.volume_shape, 0, self.n_classes)),
+            dtype=torch.uint8).to(self.device)
 
         self.model.eval()
         with torch.no_grad():
@@ -70,6 +71,7 @@ class Predictor:
                     ], 0)
                 torch_slice = torch.from_numpy(np.expand_dims(input_slice,0).astype(np.float32)).to(self.device)
                 _, predicted = torch.max(torch.nn.functional.log_softmax(self.model(torch_slice), dim=1), 1)
+
                 for j in range(predicted.shape[0]):
                     c_j = coords[j]
                     for c in range(self.n_classes):
