@@ -34,7 +34,6 @@ class NiftiReader(IReader):
         """
         image_name = str(element[self.input_key])
         img = nib.load(image_name)
-        img = img.get_fdata()
         output = {self.output_key: img}
         return output
 
