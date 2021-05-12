@@ -66,12 +66,12 @@ Developed in a partnership with
 Download links are in the Example Segmentation Notebooks
 
 ## Example Segmentation Notebooks
-* Gray White Matteri Prediction and Visualization
-* Mindboggle Predictoin and Visualization
+* Gray White Matter Prediction and Visualization
+* Mindboggle Prediction and Visualization
 
 ## Training MeshNet on Mindboggle
 
-You can reproduce MeshNet demo with 4 simple steps
+You can reproduce MeshNet for Mindboggle with 4 simple steps
 - Install requirements
     ```bash
     conda env create -f neuro_conda.yml
@@ -97,7 +97,7 @@ You can reproduce MeshNet demo with 4 simple steps
     find data/Mindboggle_101 -name '*.tar.gz'| xargs -i tar zxvf {} -C data/Mindboggle_101
     find data/Mindboggle_101 -name '*.tar.gz'| xargs -i rm {}
     ```
-- Prepare data
+- Prepare data (31 is the number of classes in the example. 102 is the max)
     ```bash
     python neuro/scripts/prepare_data.py ./data/Mindboggle_101 31
     ```
