@@ -105,7 +105,7 @@ def main(datapath, n_labels):
 
     dataframe = find_sample(datapath)
     df_list = []
-    for i, row in dataframe.iterrows():
+    for _, row in dataframe.iterrows():
         voxel_labels = nib.load(row["labels"]).get_fdata()
         unique, counts = np.unique(voxel_labels, return_counts=True)
         temp_df = pd.DataFrame({"labels": unique, "counts": counts}).T
@@ -114,7 +114,7 @@ def main(datapath, n_labels):
 
     full_value_counts = pd.concat(df_list)
 
-    for i, row in dataframe.iterrows():
+    for _, row in dataframe.iterrows():
         voxel_labels = nib.load(row["labels"]).get_fdata()
         new_img = np.zeros([256, 256, 256])
         new_img[
@@ -150,7 +150,8 @@ if __name__ == "__main__":
         "n_labels",
         type=int,
         help="""number of labels used for segmentation.
-                        The first 62 follow the DKT human labeling protocol while the next 39 are from Freesurfer""",
+                The first 62 follow the DKT human labeling protocol
+                while the next 39 are from Freesurfer""",
     )
     params = parser.parse_args()
 

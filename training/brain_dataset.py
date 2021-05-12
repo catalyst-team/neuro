@@ -116,9 +116,9 @@ class BrainDataset(Dataset):
                     output_images_list.append(
                         np.expand_dims(
                             dict_key[
-                                start_end[0][0] : start_end[0][1],
-                                start_end[1][0] : start_end[1][1],
-                                start_end[2][0] : start_end[2][1],
+                                start_end[0][0]: start_end[0][1],
+                                start_end[1][0]: start_end[1][1],
+                                start_end[2][0]: start_end[2][1],
                             ],
                             0,
                         )
@@ -128,9 +128,9 @@ class BrainDataset(Dataset):
                     output_labels_list.append(
                         np.expand_dims(
                             dict_key.slicer[
-                                start_end[0][0] : start_end[0][1],
-                                start_end[1][0] : start_end[1][1],
-                                start_end[2][0] : start_end[2][1],
+                                start_end[0][0]: start_end[0][1],
+                                start_end[1][0]: start_end[1][1],
+                                start_end[2][0]: start_end[2][1],
                             ].get_fdata(),
                             0,
                         )

@@ -13,7 +13,9 @@ class CoordsGenerator:
         self, list_shape=None, list_sub_shape=None, mus=None, sigmas=None
     ):
         """
-        Initialize a truncated normal distribution based on the volume, subvolume, mean and sigmas.
+        Initialize a truncated normal distribution based on the volume,
+        subvolume, mean and sigmas.
+
         Args:
             list_shape
             list_sub_shape

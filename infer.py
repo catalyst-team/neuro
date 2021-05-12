@@ -12,7 +12,6 @@ class Predictor:
         self, model, volume_shape, subvolume_shape, n_subvolumes, n_classes
     ):
         """Docs."""
-
         self.model = model
         self.volume_shape = volume_shape
         self.subvolume_shape = subvolume_shape
@@ -32,7 +31,7 @@ class Predictor:
         self.device = torch.device(device_name)
 
     def generate_coords(self):
-        "Generate coordinate for prediction"
+        """Generate coordinate for prediction"""
         coords_list = []
         for i in range(self.n_subvolumes):
             coords = self.generator.get_coordinates(mode="test")
@@ -45,7 +44,7 @@ class Predictor:
         return coords_list
 
     def preprocess_image(self, img):
-        "Unit interval preprocessing"
+        """Unit interval preprocessing"""
         img = (img - img.min()) / (img.max() - img.min())
         new_img = np.zeros(self.volume_shape)
         new_img[: img.shape[0], : img.shape[1], : img.shape[2]] = img
@@ -67,9 +66,9 @@ class Predictor:
             for coords in coords_list:
                 input_slice = np.expand_dims(
                     normalized_img[
-                        coords[0][0][0] : coords[0][0][1],
-                        coords[0][1][0] : coords[0][1][1],
-                        coords[0][2][0] : coords[0][2][1],
+                        coords[0][0][0]: coords[0][0][1],
+                        coords[0][1][0]: coords[0][1][1],
+                        coords[0][2][0]: coords[0][2][1],
                     ],
                     0,
                 )
@@ -88,9 +87,9 @@ class Predictor:
                     for c in range(self.n_classes):
                         one_hot_predicted_segmentation[
                             c,
-                            c_j[0, 0] : c_j[0, 1],
-                            c_j[1, 0] : c_j[1, 1],
-                            c_j[2, 0] : c_j[2, 1],
+                            c_j[0, 0]: c_j[0, 1],
+                            c_j[1, 0]: c_j[1, 1],
+                            c_j[2, 0]: c_j[2, 1],
                         ] += (predicted[j] == c)
 
             predicted_segmentation = torch.max(

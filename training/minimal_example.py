@@ -14,9 +14,8 @@ from tqdm import tqdm
 import torch
 from torch.nn import functional as F
 from torch.optim.lr_scheduler import OneCycleLR
-from torch.utils.data import DataLoader, SequentialSampler
+from torch.utils.data import DataLoader
 
-import catalyst
 from catalyst import metrics
 from catalyst.callbacks import CheckpointCallback
 from catalyst.contrib.utils.pandas import dataframe_to_list
@@ -189,9 +188,9 @@ def voxel_majority_predict_from_subvolumes(loader, n_classes, segmentations):
             for c in range(n_classes):
                 segmentations[subj_id][
                     c,
-                    c_j[0, 0] : c_j[0, 1],
-                    c_j[1, 0] : c_j[1, 1],
-                    c_j[2, 0] : c_j[2, 1],
+                    c_j[0, 0]: c_j[0, 1],
+                    c_j[1, 0]: c_j[1, 1],
+                    c_j[2, 0]: c_j[2, 1],
                 ] += (predicted[j] == c)
             prediction_n += 1
 
