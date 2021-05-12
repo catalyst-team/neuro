@@ -121,6 +121,7 @@ class OutConv(nn.Module):
         """
         return self.conv(x)
 
+
 class UNet(nn.Module):
     """Docs."""
 
@@ -300,9 +301,13 @@ def conv_w_bn_before_act(dropout_p=0, *args, **kwargs):
 
 def init_weights(model):
     for m in model.modules():
-        if isinstance(m, (nn.Conv2d, nn.Conv3d, nn.ConvTranspose2d, nn.ConvTranspose3d)):
-            nn.init.xavier_normal_(m.weight, gain=nn.init.calculate_gain('relu'))
-            nn.init.constant_(m.bias, 0.)
+        if isinstance(
+            m, (nn.Conv2d, nn.Conv3d, nn.ConvTranspose2d, nn.ConvTranspose3d)
+        ):
+            nn.init.xavier_normal_(
+                m.weight, gain=nn.init.calculate_gain("relu")
+            )
+            nn.init.constant_(m.bias, 0.0)
 
 
 class MeshNet(nn.Module):

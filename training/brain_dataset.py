@@ -81,7 +81,7 @@ class BrainDataset(Dataset):
         coords_list = []
 
         for i in coords_index:
-            coords = self.generator.get_coordinates(mode='test')
+            coords = self.generator.get_coordinates(mode="test")
             if self.mode in ["train", "validation"] or i >= len(coords):
                 coords = self.generator.get_coordinates()
                 coords_list.append(coords)
@@ -90,7 +90,9 @@ class BrainDataset(Dataset):
 
         batch_list = []
         for i, subj in enumerate(subject_ids):
-            batch_list.append(self.__crop__(subj_data_dict[subj], coords_list[i]))
+            batch_list.append(
+                self.__crop__(subj_data_dict[subj], coords_list[i])
+            )
 
         return batch_list
 
@@ -123,15 +125,20 @@ class BrainDataset(Dataset):
                     )
 
                 elif key == self.output_key:
-                    output_labels_list.append(np.expand_dims(
-                        dict_key.slicer[start_end[0][0] : start_end[0][1],
-                                 start_end[1][0] : start_end[1][1],
-                                 start_end[2][0] : start_end[2][1]].get_fdata(),
-                        0,))
+                    output_labels_list.append(
+                        np.expand_dims(
+                            dict_key.slicer[
+                                start_end[0][0] : start_end[0][1],
+                                start_end[1][0] : start_end[1][1],
+                                start_end[2][0] : start_end[2][1],
+                            ].get_fdata(),
+                            0,
+                        )
+                    )
 
         output_images = np.concatenate(output_images_list)
         output_labels = np.concatenate(output_labels_list)
         output[self.input_key] = output_images
         output[self.output_key] = output_labels.squeeze().astype(np.int64)
-        output['coords'] = coords
+        output["coords"] = coords
         return self.dict_transform(output)

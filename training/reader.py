@@ -1,5 +1,6 @@
+from typing import List, Optional
+
 import nibabel as nib
-from typing import Optional, List
 import numpy as np
 
 from catalyst.contrib.data.reader import IReader
@@ -12,7 +13,10 @@ class NiftiReader(IReader):
     """
 
     def __init__(
-        self, input_key: str, output_key: Optional[str] = None, rootpath: Optional[str] = None
+        self,
+        input_key: str,
+        output_key: Optional[str] = None,
+        rootpath: Optional[str] = None,
     ):
         """
         Args:
@@ -45,8 +49,11 @@ class NiftiFixedVolumeReader(NiftiReader):
     """
 
     def __init__(
-        self, input_key: str, output_key: str, rootpath: str = None,
-        volume_shape: List = None
+        self,
+        input_key: str,
+        output_key: str,
+        rootpath: str = None,
+        volume_shape: List = None,
     ):
         """
         Args:
