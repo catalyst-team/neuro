@@ -201,6 +201,9 @@ if __name__ == '__main__':
     parser.add_argument('--sv_d', default=38, type=int, metavar='N',
                         help='Depth of subvolumes')
     parser.add_argument('--model', default='meshnet')
+    parser.add_argument('--dropout', default=0, type=float, metavar='N',
+                       help='dropout probability for meshnet')
+    parser.add_argument('--large', default=False)
     parser.add_argument('--n_epochs', default=30, type=int, metavar='N',
                         help='number of total epochs to run')
     args = parser.parse_args()
@@ -214,11 +217,18 @@ if __name__ == '__main__':
         args.inference_path)
 
     if args.model == 'meshnet':
-        net = MeshNet(n_channels=1, n_classes=args.n_classes)
+        net = MeshNet(n_channels=1, n_classes=args.n_classes, large=args.large,
+                      dropout_p=args.dropout)
     else:
         net = UNet(n_channels=1, n_classes=args.n_classes)
 
-    logdir = "training/logs/{model}_mindboggle".format(model=args.model)
+    logdir = "training/logs/{model}_gmwm".format(model=args.model)
+    if args.large:
+        logdir += '_large'
+
+    if args.dropout:
+        logdir += '_dropout'
+
     optimizer = torch.optim.Adam(net.parameters(), lr=0.02)
     scheduler = OneCycleLR(optimizer, max_lr=.02,
                            epochs=args.n_epochs, steps_per_epoch=len(train_loaders['train']))
@@ -254,4 +264,3 @@ if __name__ == '__main__':
     per_class_df = pd.DataFrame([metric[0] for metric in subject_metrics])
     macro_df = pd.DataFrame([metric[1] for metric in subject_metrics])
     print(per_class_df, macro_df)
-    print(macro_df.mean())

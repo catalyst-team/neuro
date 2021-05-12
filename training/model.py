@@ -289,11 +289,12 @@ MeshNet_68_kwargs = [
 ]
 
 
-def conv_w_bn_before_act(*args, **kwargs):
+def conv_w_bn_before_act(dropout_p=0, *args, **kwargs):
     return nn.Sequential(
         nn.Conv3d(*args, **kwargs),
         nn.BatchNorm3d(kwargs["out_channels"]),
         nn.ReLU(inplace=True),
+        nn.Dropout3d(dropout_p),
     )
 
 
@@ -305,9 +306,10 @@ def init_weights(model):
 
 
 class MeshNet(nn.Module):
-    def __init__(self, n_channels, n_classes, large=True):
+    def __init__(self, n_channels, n_classes, large=True, dropout_p=0):
         if large:
             params = MeshNet_68_kwargs
+
         else:
             params = MeshNet_38_or_64_kwargs
 
@@ -315,7 +317,7 @@ class MeshNet(nn.Module):
         params[0]["in_channels"] = n_channels
         params[-1]["out_channels"] = n_classes
         layers = [
-            conv_w_bn_before_act(**block_kwargs)
+            conv_w_bn_before_act(dropout_p=dropout_p, **block_kwargs)
             for block_kwargs in params[:-1]
         ]
         layers.append(nn.Conv3d(**params[-1]))
