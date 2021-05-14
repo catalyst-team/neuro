@@ -107,6 +107,7 @@ def get_loaders(
 
 class CustomRunner(Runner):
     """Custom Runner for demonstrating a NeuroImaging Pipeline"""
+
     def __init__(self, n_classes: int):
         """Init."""
         super().__init__()

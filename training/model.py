@@ -314,6 +314,7 @@ def init_weights(model):
 
 class MeshNet(nn.Module):
     """Configurable MeshNet from https://arxiv.org/pdf/1612.00940.pdf"""
+
     def __init__(self, n_channels, n_classes, large=True, dropout_p=0):
         """Init"""
         if large:
