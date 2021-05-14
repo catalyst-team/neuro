@@ -104,7 +104,6 @@ def main(datapath, n_labels):
     labels = labels[:n_labels]
 
     dataframe = find_sample(datapath)
-    df_list = []
     for _, row in dataframe.iterrows():
         voxel_labels = nib.load(row["labels"]).get_fdata()
         new_img = np.zeros([256, 256, 256])
