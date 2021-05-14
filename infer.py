@@ -66,9 +66,9 @@ class Predictor:
             for coords in coords_list:
                 input_slice = np.expand_dims(
                     normalized_img[
-                        coords[0][0][0]: coords[0][0][1],
-                        coords[0][1][0]: coords[0][1][1],
-                        coords[0][2][0]: coords[0][2][1],
+                        coords[0][0][0] : coords[0][0][1],
+                        coords[0][1][0] : coords[0][1][1],
+                        coords[0][2][0] : coords[0][2][1],
                     ],
                     0,
                 )
@@ -87,9 +87,9 @@ class Predictor:
                     for c in range(self.n_classes):
                         one_hot_predicted_segmentation[
                             c,
-                            c_j[0, 0]: c_j[0, 1],
-                            c_j[1, 0]: c_j[1, 1],
-                            c_j[2, 0]: c_j[2, 1],
+                            c_j[0, 0] : c_j[0, 1],
+                            c_j[1, 0] : c_j[1, 1],
+                            c_j[2, 0] : c_j[2, 1],
                         ] += (predicted[j] == c)
 
             predicted_segmentation = torch.max(
