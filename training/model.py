@@ -291,6 +291,7 @@ MeshNet_68_kwargs = [
 
 
 def conv_w_bn_before_act(dropout_p=0, *args, **kwargs):
+    """Configurable Conv block with Batchnorm and Dropout"""
     return nn.Sequential(
         nn.Conv3d(*args, **kwargs),
         nn.BatchNorm3d(kwargs["out_channels"]),
@@ -300,6 +301,7 @@ def conv_w_bn_before_act(dropout_p=0, *args, **kwargs):
 
 
 def init_weights(model):
+    """Set weights to be xavier normal for all Convs"""
     for m in model.modules():
         if isinstance(
             m, (nn.Conv2d, nn.Conv3d, nn.ConvTranspose2d, nn.ConvTranspose3d)
@@ -311,7 +313,9 @@ def init_weights(model):
 
 
 class MeshNet(nn.Module):
+    """Configurable MeshNet from https://arxiv.org/pdf/1612.00940.pdf"""
     def __init__(self, n_channels, n_classes, large=True, dropout_p=0):
+        """Init"""
         if large:
             params = MeshNet_68_kwargs
 
@@ -330,5 +334,6 @@ class MeshNet(nn.Module):
         init_weights(self.model,)
 
     def forward(self, x):
+        """Forward pass"""
         x = self.model(x)
         return x

@@ -2,4 +2,4 @@ pytest==5.3.1
 sphinx_rtd_theme
 Sphinx==2.2.1
 mock==3.0.5
-catalyst-codestyle==20.6.1
+catalyst-codestyle==20.04

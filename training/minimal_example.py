@@ -37,7 +37,6 @@ def get_loaders(
     num_workers: int = 10,
 ) -> dict:
     """Get Dataloaders"""
-
     datasets = {}
     open_fn = ReaderCompose(
         [
@@ -108,7 +107,6 @@ def get_loaders(
 
 class CustomRunner(Runner):
     """Custom Runner for demonstrating a NeuroImaging Pipeline"""
-
     def __init__(self, n_classes: int):
         """Init."""
         super().__init__()
@@ -122,7 +120,6 @@ class CustomRunner(Runner):
     def predict_batch(self, batch):
         """Predicts a batch for an inference dataloader and returns the
         predictions as well as the corresponding slice indices"""
-
         # model inference step
         batch = batch[0]
         return (
@@ -133,7 +130,6 @@ class CustomRunner(Runner):
     def on_loader_start(self, runner):
         """Calls runner methods when the dataloader begins and adds
         metrics for loss and macro_dice"""
-
         super().on_loader_start(runner)
         self.meters = {
             key: metrics.AdditiveValueMetric(compute_on_call=False)
@@ -143,7 +139,6 @@ class CustomRunner(Runner):
     def handle_batch(self, batch):
         """Custom train/ val step that includes batch unpacking, training, and
         DICE metrics"""
-
         # model train/valid step
         batch = batch[0]
         x, y = batch["images"].float(), batch["targets"]
@@ -178,7 +173,6 @@ class CustomRunner(Runner):
     def on_loader_end(self, runner):
         """Calls runner methods when a dataloader finishes running and updates
         metrics"""
-
         for key in ["loss", "macro_dice"]:
             self.loader_metrics[key] = self.meters[key].compute()[0]
         super().on_loader_end(runner)
