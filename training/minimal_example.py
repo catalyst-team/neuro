@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 import argparse
 import collections
 from collections import OrderedDict
@@ -119,8 +119,10 @@ class CustomRunner(Runner):
         return self._loaders
 
     def predict_batch(self, batch):
-        """Predicts a batch for an inference dataloader and returns the
-        predictions as well as the corresponding slice indices"""
+        """
+        Predicts a batch for an inference dataloader and returns the
+        predictions as well as the corresponding slice indices
+        """
         # model inference step
         batch = batch[0]
         return (
@@ -129,8 +131,10 @@ class CustomRunner(Runner):
         )
 
     def on_loader_start(self, runner):
-        """Calls runner methods when the dataloader begins and adds
-        metrics for loss and macro_dice"""
+        """
+        Calls runner methods when the dataloader begins and adds
+        metrics for loss and macro_dice
+        """
         super().on_loader_start(runner)
         self.meters = {
             key: metrics.AdditiveValueMetric(compute_on_call=False)
@@ -138,8 +142,10 @@ class CustomRunner(Runner):
         }
 
     def handle_batch(self, batch):
-        """Custom train/ val step that includes batch unpacking, training, and
-        DICE metrics"""
+        """
+        Custom train/ val step that includes batch unpacking, training, and
+        DICE metrics
+        """
         # model train/valid step
         batch = batch[0]
         x, y = batch["images"].float(), batch["targets"]
@@ -172,8 +178,10 @@ class CustomRunner(Runner):
             )
 
     def on_loader_end(self, runner):
-        """Calls runner methods when a dataloader finishes running and updates
-        metrics"""
+        """
+        Calls runner methods when a dataloader finishes running and updates
+        metrics
+        """
         for key in ["loss", "macro_dice"]:
             self.loader_metrics[key] = self.meters[key].compute()[0]
         super().on_loader_end(runner)
@@ -182,8 +190,10 @@ class CustomRunner(Runner):
 def voxel_majority_predict_from_subvolumes(
     loader, n_classes, segmentations=None
 ):
-    """Predicts Brain Segmentations given a dataloader class and a optional dict
-    to contain the outputs. Returns a dict of brain segmentations."""
+    """
+    Predicts Brain Segmentations given a dataloader class and a optional dict
+    to contain the outputs. Returns a dict of brain segmentations.
+    """
     if segmentations is None:
         for subject in range(loader.dataset.subjects):
             segmentations[subject] = torch.zeros(
