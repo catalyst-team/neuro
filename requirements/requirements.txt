@@ -1,5 +1,5 @@
-alchemy==20.04
-catalyst==20.04.2
-reaction==20.02
-
+alchemy==20.4
+catalyst==21.3.1
+reaction==20.2
+osfclient
 nibabel

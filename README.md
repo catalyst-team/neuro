@@ -36,6 +36,10 @@ Project [manifest](https://github.com/catalyst-team/catalyst/blob/master/MANIFES
 
 # Catalyst.Neuro [![Build Status](https://travis-ci.com/catalyst-team/neuro.svg?branch=master)](https://travis-ci.com/catalyst-team/neuro) [![Github contributors](https://img.shields.io/github/contributors/catalyst-team/neuro.svg?logo=github&logoColor=white)](https://github.com/catalyst-team/neuro/graphs/contributors)
 
+
+This repository provides an 3D Brain Segmentation Pipeline using the Catalyst
+framework along with pretrained models and example usage.
+
 Developed in a partnership with
 
 <div align="center">
@@ -46,28 +50,57 @@ Developed in a partnership with
 
 </div>
 
-### How to run
+## Pretrained Models
 
-You can reproduce MeshNet demo with 4 simple steps
+| Model      | Macro DICE |  Inference Speed | Model Size | Classes
+| -----------| ----------- |----------- |----------- |----------- |
+| MeshNet     | .9565 | 116 subvolumes/sec | .89 mb | 3
+| MeshNet Dropout  | .8748 | 115 subvolumes/sec | .89 mb | 3
+| MeshNet Large  | .9652 | 19 subvolumes/sec | 9mb | 3
+| MeshNet Large Dropout  | .9354 | 19 subvolumes/sec | 9mb | 3
+| UNet  | .9624  | 13 subvolumes/sec |  288 mb | 3
+| MeshNet Large | .6742 | 19 subvolumes/sec |  9 mb | 31
+| UNet  | .6771 | 13 subvolumes/sec |  288 mb | 31
+| MeshNet Large | ~.85 | 18 subvolumes/sec |  10 mb | 104
+
+Download links are in the Example Segmentation Notebooks
+
+## Example Segmentation Notebooks
+* Gray White Matter Prediction and Visualization
+* Mindboggle Prediction and Visualization
+
+## Training MeshNet on Mindboggle
+
+You can reproduce MeshNet for Mindboggle with 4 simple steps
 - Install requirements
     ```bash
+    conda env create -f neuro_conda.yml
+    conda activate neuro
     pip install -r ./requirements/requirements.txt
     ```
-- Download data via
+- Download data. You need to have an account on the open science framework.
     ```bash
-    bash bin/download_dataset.sh
+    mkdir Mindboggle_data
+    osf -p 9ahyp clone Mindboggle_data
+    cp -r Mindboggle_data/osfstorage/Mindboggle101_volumes/ data/Mindboggle_data/
+
+    If you don't want to make an OSF account the files can also be downloaded
+    the correct folder using these commands:
+
+    download-gdrive 1l3YCRW7ezV9pw0e3aeYDFi4VsAm_DO7l data/Mindboggle_data/
+    download-gdrive 1fxvqrs98F1Gnozg-HsxCjfTrw5zJbQxm data/Mindboggle_data/
+    download-gdrive 1w0VXG7mLkE9tULPIxhnNK0qyguuQ7Zx8 data/Mindboggle_data/
+    download-gdrive 1soDBWB0iXb3Dc1XarSKgfgwiKDInSLQw data/Mindboggle_data/
+    download-gdrive 1jmwE69imokKJJaPKdCNK0Qlxb_r1bGN4 data/Mindboggle_data/
+
+- Unzip data and remove archive files
+    find data/Mindboggle_101 -name '*.tar.gz'| xargs -i tar zxvf {} -C data/Mindboggle_101
+    find data/Mindboggle_101 -name '*.tar.gz'| xargs -i rm {}
     ```
-- Prepare data
+- Prepare data (31 is the number of classes in the example. 102 is the max)
     ```bash
-    python neuro/scripts/prepare_data.py ./data/Mindboggle_101
+    python neuro/scripts/prepare_data.py ./data/Mindboggle_101 31
     ```
-- Start training (requires 64GB RAM due to data preprocessing)
+- Start training
     ```bash
-    # for single GPU usage
-    CUDA_VISIBLE_DEVICES=0 USE_APEX=0 catalyst-dl run --config=./training/configs/config.yml  --verbose
-    # for multiGPU training
-    CUDA_VISIBLE_DEVICES=0,2 USE_APEX=1 USE_DDP=1 catalyst-dl run --config=./training/configs/config.yml --verbose
-    ```
-
-
-
+    python training/minimal_example.py
