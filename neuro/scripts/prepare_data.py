@@ -107,15 +107,6 @@ def main(datapath, n_labels):
     df_list = []
     for _, row in dataframe.iterrows():
         voxel_labels = nib.load(row["labels"]).get_fdata()
-        unique, counts = np.unique(voxel_labels, return_counts=True)
-        temp_df = pd.DataFrame({"labels": unique, "counts": counts}).T
-        new_df = pd.DataFrame(temp_df.values[1:], columns=temp_df.iloc[0])
-        df_list.append(new_df)
-
-    full_value_counts = pd.concat(df_list)
-
-    for _, row in dataframe.iterrows():
-        voxel_labels = nib.load(row["labels"]).get_fdata()
         new_img = np.zeros([256, 256, 256])
         new_img[
             : voxel_labels.shape[0],
