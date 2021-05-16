@@ -35,9 +35,7 @@ class Down(nn.Module):
         Docs.
         """
         super().__init__()
-        self.maxpool_conv = nn.Sequential(
-            nn.MaxPool3d(2), DoubleConv(in_channels, out_channels)
-        )
+        self.maxpool_conv = nn.Sequential(nn.MaxPool3d(2), DoubleConv(in_channels, out_channels))
 
     def forward(self, x):
         """Docs."""
@@ -47,9 +45,7 @@ class Down(nn.Module):
 class Up(nn.Module):
     """Upscaling then double conv"""
 
-    def __init__(
-        self, in_channels, out_channels, mid_channels=None, bilinear=True
-    ):
+    def __init__(self, in_channels, out_channels, mid_channels=None, bilinear=True):
         """
         Docs.
         """
@@ -58,21 +54,13 @@ class Up(nn.Module):
         # if bilinear,
         # use the normal convolutions to reduce the number of channels
         if bilinear:
-            self.up = nn.Upsample(
-                scale_factor=2, mode="trilinear", align_corners=True
-            )
+            self.up = nn.Upsample(scale_factor=2, mode="trilinear", align_corners=True)
             if mid_channels:
-                self.conv = DoubleConv(
-                    in_channels, out_channels, mid_channels=mid_channels,
-                )
+                self.conv = DoubleConv(in_channels, out_channels, mid_channels=mid_channels,)
             else:
-                self.conv = DoubleConv(
-                    in_channels, out_channels // 2, in_channels // 2
-                )
+                self.conv = DoubleConv(in_channels, out_channels // 2, in_channels // 2)
         else:
-            self.up = nn.ConvTranspose3d(
-                in_channels, in_channels // 2, kernel_size=2, stride=2
-            )
+            self.up = nn.ConvTranspose3d(in_channels, in_channels // 2, kernel_size=2, stride=2)
             self.conv = DoubleConv(in_channels, out_channels)
 
     def forward(self, x1, x2):
@@ -303,12 +291,8 @@ def conv_w_bn_before_act(dropout_p=0, *args, **kwargs):
 def init_weights(model):
     """Set weights to be xavier normal for all Convs"""
     for m in model.modules():
-        if isinstance(
-            m, (nn.Conv2d, nn.Conv3d, nn.ConvTranspose2d, nn.ConvTranspose3d)
-        ):
-            nn.init.xavier_normal_(
-                m.weight, gain=nn.init.calculate_gain("relu")
-            )
+        if isinstance(m, (nn.Conv2d, nn.Conv3d, nn.ConvTranspose2d, nn.ConvTranspose3d)):
+            nn.init.xavier_normal_(m.weight, gain=nn.init.calculate_gain("relu"))
             nn.init.constant_(m.bias, 0.0)
 
 

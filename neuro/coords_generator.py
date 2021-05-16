@@ -9,9 +9,7 @@ class CoordsGenerator:
 
     """
 
-    def __init__(
-        self, list_shape=None, list_sub_shape=None, mus=None, sigmas=None
-    ):
+    def __init__(self, list_shape=None, list_sub_shape=None, mus=None, sigmas=None):
         """
         Initialize a truncated normal distribution based on the volume,
         subvolume, mean and sigmas.
@@ -28,19 +26,11 @@ class CoordsGenerator:
         self.half_subvolume_shape = self.subvolume_shape // 2
         if mus is None:
             mus = np.array(
-                [
-                    self.volume_shape[0] // 2,
-                    self.volume_shape[0] // 2,
-                    self.volume_shape[0] // 2,
-                ]
+                [self.volume_shape[0] // 2, self.volume_shape[0] // 2, self.volume_shape[0] // 2]
             )
         if sigmas is None:
             sigmas = np.array(
-                [
-                    self.volume_shape[0] // 4,
-                    self.volume_shape[0] // 4,
-                    self.volume_shape[0] // 4,
-                ]
+                [self.volume_shape[0] // 4, self.volume_shape[0] // 4, self.volume_shape[0] // 4]
             )
         self.truncnorm_coordinates = truncnorm(
             (self.half_subvolume_shape - mus + 1) / sigmas,
@@ -50,9 +40,7 @@ class CoordsGenerator:
         )
 
     def _generator(self):
-        xyz = np.round(self.truncnorm_coordinates.rvs(size=(1, 3))[0]).astype(
-            "int"
-        )
+        xyz = np.round(self.truncnorm_coordinates.rvs(size=(1, 3))[0]).astype("int")
         xyz_start = xyz - self.half_subvolume_shape
         xyz_end = xyz + self.half_subvolume_shape
         xyz_coords = np.expand_dims(np.vstack((xyz_start, xyz_end)).T, 0)
@@ -70,10 +58,7 @@ class CoordsGenerator:
         """
         step = self.subvolume_shape[0]
         length = self.volume_shape[0]
-        return [
-            (c, c + step)
-            for c in range((length % step) // 2, length - step + 1, step)
-        ]
+        return [(c, c + step) for c in range((length % step) // 2, length - step + 1, step)]
 
     def _generate_centered_nonoverlap_1d_grid(self):
         z = self.__generate_centered_nonoverlap_1d_grid()

@@ -25,14 +25,10 @@ def find_sample(path):
                 if train.startswith("."):
                     continue
                 if train == "t1weighted.nii.gz":
-                    labels_data["images"].append(
-                        os.path.join(person_folder, "t1weighted.nii.gz")
-                    )
+                    labels_data["images"].append(os.path.join(person_folder, "t1weighted.nii.gz"))
                 if train == "labels.DKT31.manual+aseg.nii.gz":
                     labels_data["labels"].append(
-                        os.path.join(
-                            person_folder, "labels.DKT31.manual+aseg.nii.gz"
-                        )
+                        os.path.join(person_folder, "labels.DKT31.manual+aseg.nii.gz")
                     )
                     print(t)
                     t += 1
@@ -108,9 +104,7 @@ def main(datapath, n_labels):
         voxel_labels = nib.load(row["labels"]).get_fdata()
         new_img = np.zeros([256, 256, 256])
         new_img[
-            : voxel_labels.shape[0],
-            : voxel_labels.shape[1],
-            : voxel_labels.shape[2],
+            : voxel_labels.shape[0], : voxel_labels.shape[1], : voxel_labels.shape[2],
         ] = voxel_labels
         segmentation = np.zeros([256, 256, 256])
 
@@ -118,9 +112,7 @@ def main(datapath, n_labels):
             mask = np.equal(l, new_img)
             segmentation[mask] = j + 1
         nib_seg = nib.Nifti1Image(segmentation, np.eye(4))
-        nib_seg.to_filename(
-            row["labels"].split(".nii")[0] + "_labels" + ".nii.gz"
-        )
+        nib_seg.to_filename(row["labels"].split(".nii")[0] + "_labels" + ".nii.gz")
 
     dataframe["nii_labels"] = dataframe["labels"].apply(
         lambda a: a.split(".nii")[0] + "_labels" + ".nii.gz"

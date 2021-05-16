@@ -1,9 +1,8 @@
 from typing import Any, Callable, List, Union
 from pathlib import Path
 
-from generator_coords import CoordsGenerator
+from coords_generator import CoordsGenerator
 import numpy as np
-
 from torch.utils.data import Dataset
 
 _Path = Union[str, Path]
@@ -40,13 +39,9 @@ class BrainDataset(Dataset):
         """
         self.data = list_data
         self.open_fn = open_fn
-        self.generator = CoordsGenerator(
-            list_shape=list_shape, list_sub_shape=list_sub_shape
-        )
+        self.generator = CoordsGenerator(list_shape=list_shape, list_sub_shape=list_sub_shape)
         self.mode = mode
-        self.dict_transform = (
-            dict_transform if dict_transform is not None else lambda x: x
-        )
+        self.dict_transform = dict_transform if dict_transform is not None else lambda x: x
         self.input_key = input_key
         self.output_key = output_key
         self.subvolume_shape = np.array(list_sub_shape)
@@ -90,9 +85,7 @@ class BrainDataset(Dataset):
 
         batch_list = []
         for i, subj in enumerate(subject_ids):
-            batch_list.append(
-                self.__crop__(subj_data_dict[subj], coords_list[i])
-            )
+            batch_list.append(self.__crop__(subj_data_dict[subj], coords_list[i]))
 
         return batch_list
 

@@ -1,22 +1,17 @@
 from typing import List, Optional
 
+from catalyst.contrib.data.reader import IReader
 import nibabel as nib
 import numpy as np
-
-from catalyst.contrib.data.reader import IReader
 
 
 class NiftiReader(IReader):
     """
-    Nifti reader abstraction for NeuroImaging. Reads nifti images from
-    a `csv` dataset.
+    Nifti reader abstraction for NeuroImaging. Reads nifti images from a `csv` dataset.
     """
 
     def __init__(
-        self,
-        input_key: str,
-        output_key: Optional[str] = None,
-        rootpath: Optional[str] = None,
+        self, input_key: str, output_key: Optional[str] = None, rootpath: Optional[str] = None,
     ):
         """
         Args:
@@ -29,10 +24,11 @@ class NiftiReader(IReader):
         self.rootpath = rootpath
 
     def __call__(self, element):
-        """Reads a row from your annotations dict with filename and
-        transfer it to an image
+        """Reads a row from your annotations dict with filename and transfer it to an image
+
         Args:
             element: elem in your dataset.
+
         Returns:
             np.ndarray: Image
         """
@@ -44,16 +40,11 @@ class NiftiReader(IReader):
 
 class NiftiFixedVolumeReader(NiftiReader):
     """
-    Nifti reader abstraction for NeuroImaging. Reads nifti images
-    from a `csv` dataset.
+    Nifti reader abstraction for NeuroImaging. Reads nifti images from a `csv` dataset.
     """
 
     def __init__(
-        self,
-        input_key: str,
-        output_key: str,
-        rootpath: str = None,
-        volume_shape: List = None,
+        self, input_key: str, output_key: str, rootpath: str = None, volume_shape: List = None,
     ):
         """
         Args:
@@ -70,10 +61,11 @@ class NiftiFixedVolumeReader(NiftiReader):
         self.volume_shape = volume_shape
 
     def __call__(self, element):
-        """Reads a row from your annotations dict with filename and
-        transfer it to an image
+        """Reads a row from your annotations dict with filename and transfer it to an image
+
         Args:
             element: elem in your dataset.
+
         Returns:
             np.ndarray: Image
         """
