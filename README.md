@@ -29,12 +29,12 @@ Developed in a partnership with
 Download links are in the Example Segmentation Notebooks
 
 ## Example Segmentation Notebooks
-* Gray White Matter Prediction and Visualization
-* Mindboggle Prediction and Visualization
+* [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/catalyst-team/neuro/blob/master/examples/GMWM_Prediction_and_Visualization.ipynb) [Gray White Matter Prediction and Visualization](./examples/GMWM_Prediction_and_Visualization.ipynb)
+* [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/catalyst-team/neuro/blob/master/examples/Mindboggle_Prediction_and_Visualization.ipynb) [Mindboggle Prediction and Visualization](./examples/Mindboggle_Prediction_and_Visualization.ipynb)
 
 ## Training MeshNet on Mindboggle
 
-You can reproduce MeshNet for Mindboggle with 4 simple steps
+You can reproduce MeshNet for Mindboggle with 5 simple steps
 - Install requirements
     ```bash
     conda env create -f neuro_conda.yml
