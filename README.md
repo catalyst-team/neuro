@@ -31,6 +31,7 @@ Download links are in the Example Segmentation Notebooks
 ## Example Segmentation Notebooks
 * [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/catalyst-team/neuro/blob/master/examples/GMWM_Prediction_and_Visualization.ipynb) [Gray White Matter Prediction and Visualization](./examples/GMWM_Prediction_and_Visualization.ipynb)
 * [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/catalyst-team/neuro/blob/master/examples/Mindboggle_Prediction_and_Visualization.ipynb) [Mindboggle Prediction and Visualization](./examples/Mindboggle_Prediction_and_Visualization.ipynb)
+* [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/catalyst-team/neuro/blob/master/examples/Neuro_Demo.ipynb) [Neuro UNet/ Meshnet training tutorial](./examples/Neuro_Demo.ipynb)
 
 ## Training MeshNet on Mindboggle
 
