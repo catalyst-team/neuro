@@ -8,9 +8,9 @@ parser.add_argument('--brains_list')
 args = parser.parse_args()
 
 labels = [i for i in range(1001, 1004)] + [i for i in range(1005, 1036)] + \
-        [i for i in range(2001, 2004)] + [i for i in range(2005, 2036)] + \
-        [10, 49, 11, 50, 12, 51, 13, 52, 17, 53, 18, 54, 26, 58, 28, 60, 2,
-         41, 4, 5, 43, 44, 14, 15, 24, 16, 7, 46, 8, 47, 251, 252, 253, 254, 255]
+    [i for i in range(2001, 2004)] + [i for i in range(2005, 2036)] + \
+    [10, 49, 11, 50, 12, 51, 13, 52, 17, 53, 18, 54, 26, 58, 28, 60, 2,
+    41, 4, 5, 43, 44, 14, 15, 24, 16, 7, 46, 8, 47, 251, 252, 253, 254, 255]
 
 print(len(labels), labels)
 filename = 'aparc+aseg.nii.gz'
