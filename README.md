@@ -7,26 +7,12 @@ pre-trained models for Gray Matter White Matter (GMWM) segmentation, 104 class
 brain atlas segmentation, and 31 class brain atlas segmentation and with usage
 shown in example
 [notebooks](https://github.com/catalyst-team/neuro#example-segmentation-notebooks).
+Segmenting a structural MRI is an important processing step that enables
+subsequent inferences about tissue changes in development, aging, and disease.
 This work is based on the following papers: [An (almost) instant brain atlas
 segmentation for large-scale studies](https://arxiv.org/pdf/1711.00457.pdf) and
 [End-to-end learning of brain tissue segmentation from imperfect
 labeling](https://arxiv.org/pdf/1612.00940.pdf).
-
-Segmenting a structural MRI is an important processing step that enables
-subsequent inferences about tissue changes in development, aging, and disease.
-For our example segmentation pipeline, we use manual asotations from the
-Mindboggle [dataset](https://mindboggle.readthedocs.io/en/latest/labels.html)
-(DKT cortical labeling protocol).  These are considered the gold standard and
-labeling a single MRI takes ~ 1 week of expert labeling.  The labeling is done
-using a 2D display, one slice at a time which can lead to accuracy/ consistency
-issues.  For our pre-trained models, we use automated labels from the Human
-Colabectomeectome Project (HCP), which can be downloaded
-[here](https://cran.r-project.org/web/packages/neurohcp/vignettes/hcp.html).
-The automated labeling tool used (FreeSurfer) employs probabilistic methods
-with priors to perform segmentation and is the current SOTA.  While ruinging
-FreeSurfer involves more than segmentation, it can take hours to segment a
-single MRI from FreeSurfer.  A MeshNet model can perform an MRI segmentation
-with acceptable accuracy within minutes.
 
 Developed in a partnership with
 
@@ -108,6 +94,20 @@ You can reproduce MeshNet for Mindboggle with 5 simple steps
     ```bash
     python neuro/minimal_example.py
     ```
+
+## MRI Segmentation Datasets
+Mindboggle [dataset](https://mindboggle.readthedocs.io/en/latest/labels.html)
+uses manual annotations which are considered the gold standard. Manually labeling a
+single MRI can take a week of expert labeling.  The labeling is done
+using a 2D display, one slice at a time which can lead to accuracy/ consistency
+issues.  For our pre-trained models, we use automated labels from the Human
+Connectome Project (HCP), which can be downloaded
+[here](https://cran.r-project.org/web/packages/neurohcp/vignettes/hcp.html).
+The automated labeling tool used (FreeSurfer) employs probabilistic methods
+with priors to perform segmentation and is the current SOTA.  While running
+FreeSurfer involves more than segmentation, it can take hours to segment a
+single MRI from FreeSurfer vs. minutes for a MeshNet model.
+
 
 ## HCP Data preparation
 - Prepare **T1 or T2 input** with mri_convert from [FreeSurfer](https://surfer.nmr.mgh.harvard.edu/)
